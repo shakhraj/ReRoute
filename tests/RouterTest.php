@@ -43,10 +43,10 @@
       );
 
       $route = $router->getRoute('homepage');
-      $this->assertInstanceOf(Route::class, $route);
+      $this->assertInstanceOf('\\ReRoute\\Route', $route);
 
       $route = $router->homepage();
-      $this->assertInstanceOf(Route::class, $route);
+      $this->assertInstanceOf('\\ReRoute\\Route', $route);
 
     }
 

@@ -76,7 +76,7 @@
         $this->assertEmpty($routeMatch, $method . ':' . $url . " should not match");
       } else {
         $this->assertNotEmpty($routeMatch, $method . ':' . $url . " should match");
-        $this->assertInstanceOf(RouteMatch::class, $routeMatch);
+        $this->assertInstanceOf('\\ReRoute\\RouteMatch', $routeMatch);
       }
 
     }
