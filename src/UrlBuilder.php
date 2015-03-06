@@ -39,7 +39,7 @@
      *
      * @param RequestContext $requestContext
      *
-     * @return RequestContext The current instance, implementing a fluent interface
+     * @return UrlBuilder The current instance, implementing a fluent interface
      *
      */
     public function fromRequestContext(RequestContext $requestContext) {
@@ -65,7 +65,7 @@
      *
      * @param int $port The HTTP port
      *
-     * @return RequestContext The current instance, implementing a fluent interface
+     * @return UrlBuilder The current instance, implementing a fluent interface
      *
      * @api
      */
@@ -90,7 +90,7 @@
      *
      * @param array $parameters The parameters
      *
-     * @return RequestContext The current instance, implementing a fluent interface
+     * @return UrlBuilder The current instance, implementing a fluent interface
      */
     public function setParameters(array $parameters) {
       $this->parameters = $parameters;
@@ -128,7 +128,7 @@
      * @param string $name A parameter name
      * @param mixed $parameter The parameter value
      *
-     * @return RequestContext The current instance, implementing a fluent interface
+     * @return UrlBuilder The current instance, implementing a fluent interface
      *
      * @api
      */
@@ -162,7 +162,7 @@
      *
      * @param string $scheme The HTTP scheme
      *
-     * @return RequestContext The current instance, implementing a fluent interface
+     * @return UrlBuilder The current instance, implementing a fluent interface
      *
      * @api
      */
@@ -189,7 +189,7 @@
      *
      * @param string $host The HTTP host
      *
-     * @return RequestContext The current instance, implementing a fluent interface
+     * @return UrlBuilder The current instance, implementing a fluent interface
      *
      * @api
      */
@@ -212,9 +212,9 @@
     /**
      * Sets the path info.
      *
-     * @param $path
+     * @param string $path
      *
-     * @return RequestContext The current instance, implementing a fluent interface
+     * @return UrlBuilder The current instance, implementing a fluent interface
      *
      */
     public function setPath($path) {
