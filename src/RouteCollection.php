@@ -84,7 +84,7 @@
 
 
     /**
-     * @param $routeId
+     * @param string $routeId
      *
      * @return Route
      */
