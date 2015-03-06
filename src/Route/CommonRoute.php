@@ -41,11 +41,19 @@
     public $parametersRegex = [];
 
 
+    /**
+     * @param string $template
+     * @param string $subject
+     */
     public function templateMatch($template, $subject, &$matchedParams) {
       $matchedParams = [];
       $parametersRegex = $this->parametersRegex;
       $templateRegex = preg_replace_callback(
         '!\{([\w]+)\}(\?|)([/]?)!',
+
+        /**
+         * @param string $match
+         */
         function ($match) use ($parametersRegex) {
           $paramName = $match[1];
           $paramRegex = !empty($parametersRegex[$paramName]) ? $parametersRegex[$paramName] : '[^/]+';
@@ -66,9 +74,16 @@
     }
 
 
+    /**
+     * @param string $template
+     */
     public function templateBuild($template, UrlParameters $urlParameters) {
       return preg_replace_callback(
         '!\{([\w]+)\}(\?|)([/])!',
+
+        /**
+         * @param string $match
+         */
         function ($match) use ($urlParameters) {
           $paramName = $match[1];
           if ($value = $urlParameters->useParameter($paramName)) {
@@ -162,7 +177,7 @@
 
 
     /**
-     * @return string|\string[]
+     * @return string
      */
     public function getScheme() {
       return $this->scheme;
@@ -181,7 +196,7 @@
 
 
     /**
-     * @return string|\string[]
+     * @return string
      */
     public function getMethod() {
       return $this->method;
@@ -214,7 +229,7 @@
     /**
      * @param UrlBuilder $url
      *
-     * @return UrlBuilder|void
+     * @return UrlBuilder
      */
     public function build(UrlBuilder $url = null) {
 
