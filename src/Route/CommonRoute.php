@@ -45,7 +45,7 @@
       $matchedParams = [];
       $parametersRegex = $this->parametersRegex;
       $templateRegex = preg_replace_callback(
-        '!\{([\w]+)\}(\?|)([/])!',
+        '!\{([\w]+)\}(\?|)([/]?)!',
         function ($match) use ($parametersRegex) {
           $paramName = $match[1];
           $paramRegex = !empty($parametersRegex[$paramName]) ? $parametersRegex[$paramName] : '[^/]+';

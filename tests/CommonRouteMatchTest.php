@@ -60,18 +60,18 @@
     public function testTemplateMatch($url, $method, $result) {
 
       $route = (new CommonRoute())
+        ->setMethod('get|post')
         ->setScheme('http')
         ->setPathTemplate('/item/{itemId}/')
-        ->setMethod('get')
         ->setHostTemplate('{subdomain}.example.com');
 
       $route
         ->setParameterRegex('subdomain', '[a-z]{2,5}')
         ->setParameterRegex('itemId', '\d+');
 
-      $requstContext = RequestContextFactory::createFromUrl($url, $method);
+      $requestContext = RequestContextFactory::createFromUrl($url, $method);
 
-      $routeMatch = $route->match($requstContext);
+      $routeMatch = $route->match($requestContext);
       if (empty($result)) {
         $this->assertEmpty($routeMatch, $method . ':' . $url . " should not match");
       } else {
@@ -85,14 +85,14 @@
     public function templateRequestsProvider() {
       return [
         ['http://abc.example.com/item/1/', 'get', ['subdomain' => 'abc', 'itemId' => 1]],
-        /*['http://abc.example.com/item/1/', 'post', ['subdomain' => 'abc', 'itemId' => 1]],
+        ['http://abc.example.com/item/1/', 'post', ['subdomain' => 'abc', 'itemId' => 1]],
         ['http://abc.example.com/item/1/', 'delete', false],
         ['http://abc.example.com/item/abc/', 'get', false],
         ['http://123.example.com/item/1/', 'get', false],
         ['http://aaaaaaaaa.example.com/item/1/', 'get', false],
         ['http://a.example.com/item/1/', 'get', false],
         ['http://example.com/item/1/', 'get', false],
-        ['http://abc.example.com/item/1/?a=1', 'get', ['subdomain' => 'abc', 'itemId' => 1]], */
+        ['http://abc.example.com/item/1/?a=1', 'get', ['subdomain' => 'abc', 'itemId' => 1]],
       ];
     }
 
