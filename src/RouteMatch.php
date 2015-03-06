@@ -68,7 +68,7 @@
      *
      * @return bool True if the parameter value is set, false otherwise
      */
-    public function hasParameter($name) {
+    public function has($name) {
       return array_key_exists($name, $this->parameters);
     }
 
@@ -80,7 +80,7 @@
      *
      * @return $this
      */
-    public function removeParameter($name) {
+    public function remove($name) {
       unset($this->parameters[$name]);
       return $this;
     }
@@ -96,35 +96,11 @@
 
     /**
      * @param string $field
-     *
-     * @return mixed
-     */
-    public function __get($field) {
-      return $this->getParameter($field);
-    }
-
-
-    /**
-     * @param string $field
      * @param mixed $value
-     */
-    public function __set($field, $value) {
-      $this->setParameter($field, $value);
-    }
-
-
-    /**
-     * Sets a parameter value.
-     *
-     * @param string $name A parameter name
-     * @param mixed $parameter The parameter value
-     *
      * @return $this
-     *
-     * @api
      */
-    public function setParameter($name, $parameter) {
-      $this->parameters[$name] = $parameter;
+    public function set($field, $value) {
+      $this->parameters[$field] = $value;
       return $this;
     }
 
@@ -136,7 +112,7 @@
      *
      * @return mixed The parameter value or null if nonexistent
      */
-    public function getParameter($name) {
+    public function get($name) {
       return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
 

@@ -30,7 +30,7 @@
         $routeMatch = $this->createNewRouteMatch();
       }
       foreach ($this->storedParams as $param => $value) {
-        $routeMatch->setParameter($param, $value);
+        $routeMatch->set($param, $value);
       }
       return $routeMatch;
     }
