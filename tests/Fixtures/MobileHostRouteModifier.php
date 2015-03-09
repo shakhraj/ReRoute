@@ -4,6 +4,7 @@
 
   use ReRoute\RequestContext;
   use ReRoute\RouteModifier;
+  use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
   class MobileHostRouteModifier extends RouteModifier {
@@ -14,7 +15,7 @@
      *
      * @return bool
      */
-    public function match(RequestContext $requestContext) {
+    protected function match(RequestContext $requestContext) {
       if (preg_match('!^m\.(.+)$!', $requestContext->getHost(), $match)) {
         $requestContext->setHost($match[1]);
         $this->storeParam('isMobile', true);
@@ -25,11 +26,17 @@
     }
 
 
-    public function build(UrlBuilder $url = null) {
-      if ($this->urlParameters->useParameter('isMobile')) {
+    /**
+     * @param Url $url
+     * @param UrlBuilder $urlBuilder
+     *
+     * @return UrlBuilder
+     */
+    public function build(Url $url, UrlBuilder $urlBuilder) {
+      if ($urlBuilder->useParameter('isMobile')) {
         $url->setHost('m.' . $url->getHost());
       }
-      return parent::build($url);
+      return parent::build($url, $urlBuilder);
     }
 
 

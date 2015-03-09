@@ -24,25 +24,25 @@
       $this->assertEquals('example.com', $route->getHostTemplate());
 
       $this->assertNotEMpty(
-        $route->match(
+        $route->doMatch(
           RequestContextFactory::createFromUrl('http://example.com/item/', 'post')
         )
       );
 
       $this->assertEmpty(
-        $route->match(
+        $route->doMatch(
           RequestContextFactory::createFromUrl('http://example.com/item/', 'get')
         )
       );
 
       $this->assertEmpty(
-        $route->match(
+        $route->doMatch(
           RequestContextFactory::createFromUrl('http://example.com/other/', 'post')
         )
       );
 
       $this->assertEmpty(
-        $route->match(
+        $route->doMatch(
           RequestContextFactory::createFromUrl('http://otherexample.com/item/', 'post')
         )
       );
@@ -71,7 +71,7 @@
 
       $requestContext = RequestContextFactory::createFromUrl($url, $method);
 
-      $routeMatch = $route->match($requestContext);
+      $routeMatch = $route->doMatch($requestContext);
       if (empty($result)) {
         $this->assertEmpty($routeMatch, $method . ':' . $url . " should not match");
       } else {

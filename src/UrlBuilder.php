@@ -7,222 +7,192 @@
   class UrlBuilder {
 
 
-    private $path;
-
-
-    private $host;
-
-
-    private $scheme;
-
-
-    private $port;
+    /**
+     * @var Route
+     */
+    private $route;
 
 
     /**
      * @var array
      */
-    private $parameters = [];
+    public $defaultParams = [];
 
 
-    public function __construct($host = 'localhost', $scheme = 'http', $port = 80, $path = '/', $parameters = []) {
-      $this->setHost($host);
-      $this->setScheme($scheme);
-      $this->setPort($port);
-      $this->setPath($path);
-      $this->setParameters($parameters);
+    /**
+     * @var array
+     */
+    public $params = [];
+
+
+    /**
+     * @var array
+     */
+    public $usedParams = [];
+
+
+    /**
+     * @param Route $route
+     */
+    public function __construct(Route $route) {
+      $this->route = $route;
     }
 
 
     /**
-     * Updates the RequestContext information based on a HttpFoundation Request.
+     * @param string $param
+     * @param string $value
      *
-     * @param RequestContext $requestContext
-     *
-     * @return UrlBuilder The current instance, implementing a fluent interface
-     *
+     * @return $this
      */
-    public static function fromRequestContext(RequestContext $requestContext) {
-
-      $urlBuilder = new static();
-      $urlBuilder->setScheme($requestContext->getScheme());
-      $urlBuilder->setHost($requestContext->getHost());
-      $urlBuilder->setPath($requestContext->getPath());
-      $urlBuilder->setParameters($requestContext->getParameters());
-
-      return $urlBuilder;
-    }
-
-
-    /**
-     * Gets the HTTP port.
-     *
-     * @return int The HTTP port
-     */
-    public function getPort() {
-      return $this->port;
-    }
-
-
-    /**
-     * Sets the HTTP port.
-     *
-     * @param int $port The HTTP port
-     *
-     * @return UrlBuilder The current instance, implementing a fluent interface
-     *
-     * @api
-     */
-    public function setPort($port) {
-      $this->port = (int) $port;
+    public function setParameter($param, $value) {
+      $this->params[$param] = $value;
+      unset($this->defaultParams[$param]);
       return $this;
     }
 
 
     /**
-     * Returns the parameters.
+     * @param string $param
+     * @param string $value
      *
-     * @return array The parameters
+     * @return UrlBuilder
      */
-    public function getParameters() {
-      return $this->parameters;
+    public function set($param, $value) {
+      return $this->setParameter($param, $value);
     }
 
 
     /**
-     * Sets the parameters.
+     * @param string $param
      *
-     * @param array $parameters The parameters
-     *
-     * @return UrlBuilder The current instance, implementing a fluent interface
+     * @return $this
      */
-    public function setParameters(array $parameters) {
-      $this->parameters = $parameters;
+    public function removeParameter($param) {
+      unset($this->params[$param]);
+      unset($this->defaultParams[$param]);
       return $this;
     }
 
 
     /**
-     * Gets a parameter value.
+     * @param string $param
      *
-     * @param string $name A parameter name
-     *
-     * @return mixed The parameter value or null if nonexistent
+     * @return bool
      */
-    public function getParameter($name) {
-      return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
+    public function hasParameter($param) {
+      return isset($this->params[$param]);
     }
 
 
     /**
-     * Checks if a parameter value is set for the given parameter.
+     * @param string[] $params
      *
-     * @param string $name A parameter name
-     *
-     * @return bool True if the parameter value is set, false otherwise
+     * @return $this
      */
-    public function hasParameter($name) {
-      return array_key_exists($name, $this->parameters);
-    }
-
-
-    /**
-     * Sets a parameter value.
-     *
-     * @param string $name A parameter name
-     * @param mixed $parameter The parameter value
-     *
-     * @return UrlBuilder The current instance, implementing a fluent interface
-     */
-    public function setParameter($name, $parameter) {
-      $this->parameters[$name] = $parameter;
-      return $this;
-    }
-
-
-    public function getUrl() {
-      return
-        $this->getScheme() . '://' .
-        $this->getHost() .
-        (80 == ($port = $this->getPort()) ? '' : ':' . $port) .
-        $this->getPath() .
-        (!empty($this->parameters) ? '?' . http_build_query($this->parameters) : '');
-    }
-
-
-    /**
-     * Gets the HTTP scheme.
-     *
-     * @return string The HTTP scheme
-     */
-    public function getScheme() {
-      return $this->scheme;
-    }
-
-
-    /**
-     * Sets the HTTP scheme.
-     *
-     * @param string $scheme The HTTP scheme
-     *
-     * @return UrlBuilder The current instance, implementing a fluent interface
-     *
-     * @api
-     */
-    public function setScheme($scheme) {
-      $this->scheme = strtolower($scheme);
+    public function setDefaultParameters($params) {
+      foreach ($params as $param => $value) {
+        $this->setDefaultParameter($param, $value);
+      }
       return $this;
     }
 
 
     /**
-     * Gets the HTTP host.
+     * @param string $param
+     * @param string $value
      *
-     * The host is always lowercased because it must be treated case-insensitive.
-     *
-     * @return string The HTTP host
+     * @return $this
      */
-    public function getHost() {
-      return $this->host;
-    }
-
-
-    /**
-     * Sets the HTTP host.
-     *
-     * @param string $host The HTTP host
-     *
-     * @return UrlBuilder The current instance, implementing a fluent interface
-     *
-     * @api
-     */
-    public function setHost($host) {
-      $this->host = strtolower($host);
+    public function setDefaultParameter($param, $value) {
+      $this->defaultParams[$param] = $value;
       return $this;
     }
 
 
     /**
-     * Gets the path info.
+     * @param string $param
      *
-     * @return string The path info
+     * @return $this
      */
-    public function getPath() {
-      return $this->path;
+    public function removeDefaultParameter($param) {
+      unset($this->defaultParams[$param]);
+      return $this;
     }
 
 
     /**
-     * Sets the path info.
+     * @param string $param
      *
-     * @param string $path
-     *
-     * @return UrlBuilder The current instance, implementing a fluent interface
-     *
+     * @return string
      */
-    public function setPath($path) {
-      $this->path = $path;
-      return $this;
+    public function useParameter($param) {
+      $this->usedParams[$param] = true;
+      return $this->getParameter($param);
     }
+
+
+    /**
+     * @param string $param
+     *
+     * @return string
+     */
+    public function getParameter($param) {
+      if (!empty($this->params[$param])) {
+        return $this->params[$param];
+      }
+      if (!empty($this->defaultParams[$param])) {
+        return $this->defaultParams[$param];
+      }
+      return null;
+    }
+
+
+    /**
+     * @return string[]
+     */
+    public function getUnusedParameters() {
+      return array_diff_key($this->params, $this->usedParams);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function assemble() {
+      $url = new Url();
+      $this->route->build($url, $this);
+      foreach ($this->getUnusedParameters() as $param => $value) {
+        $url->setParameter($param, $value);
+      }
+      return $url->getUrl();
+    }
+
+
+    /**
+     * @param string $routeId
+     *
+     * @return UrlBuilder
+     */
+    public function getUrl($routeId) {
+      return $this->route->getUrl($routeId);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function __toString() {
+      return $this->assemble();
+    }
+
+
+    /**
+     * @return Route
+     */
+    public function getRoute() {
+      return $this->route;
+    }
+
 
   }

@@ -46,17 +46,9 @@
       $this->assertInstanceOf('\\ReRoute\\Route', $route);
 
       $route = $router->getUrl('homepage');
-      $this->assertInstanceOf('\\ReRoute\\Route', $route);
+      $this->assertInstanceOf('\\ReRoute\\UrlBuilder', $route);
+      $this->assertInstanceOf('\\ReRoute\\Route\\CommonRoute', $route->getRoute());
 
-    }
-
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testGettingRoutesBadId() {
-      $router = new Router();
-      $router->getRoute('homepage');
     }
 
 
@@ -72,23 +64,23 @@
         'homepageResult'
       );
 
-      $routeMatch = $router->match(
+      $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example.com/?test=1')
       );
       $this->assertNotEmpty($routeMatch);
       $this->assertEquals('homepage', $routeMatch->getRouteId());
 
-      $routeMatch = $router->match(
+      $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example.com/somepath/')
       );
       $this->assertEmpty($routeMatch);
 
-      $routeMatch = $router->match(
+      $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example2.com/')
       );
       $this->assertEmpty($routeMatch);
 
-      $routeMatch = $router->match(
+      $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('https://example.com/')
       );
       $this->assertEmpty($routeMatch);

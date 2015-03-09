@@ -3,32 +3,32 @@
   namespace ReRoute\Tests;
 
 
-  class UrlBuilderTest extends \PHPUnit_Framework_TestCase {
+  class UrlTest extends \PHPUnit_Framework_TestCase {
 
 
-    public function testUrlBuilder() {
+    public function testUrl() {
 
 
-      $urlBuilder = new \ReRoute\UrlBuilder();
+      $url = new \ReRoute\Url();
 
-      $this->assertEquals('localhost', $urlBuilder->getHost());
-      $this->assertEquals('/', $urlBuilder->getPath());
-      $this->assertEquals('http', $urlBuilder->getScheme());
-      $this->assertEquals('80', $urlBuilder->getPort());
-      $this->assertEmpty($urlBuilder->getParameters());
-      $this->assertFalse($urlBuilder->hasParameter('nonexistent'));
-      $this->assertNull($urlBuilder->getParameter('nonexistent'));
+      $this->assertEquals('localhost', $url->getHost());
+      $this->assertEquals('/', $url->getPath());
+      $this->assertEquals('http', $url->getScheme());
+      $this->assertEquals('80', $url->getPort());
+      $this->assertEmpty($url->getParameters());
+      $this->assertFalse($url->hasParameter('nonexistent'));
+      $this->assertNull($url->getParameter('nonexistent'));
 
-      $this->assertEquals('http://localhost/', $urlBuilder->getUrl());
+      $this->assertEquals('http://localhost/', $url->getUrl());
 
-      $urlBuilder->setHost('example.com');
-      $urlBuilder->setPort(8080);
-      $urlBuilder->setPath('/somepath/');
-      $urlBuilder->setParameter('param', 123);
+      $url->setHost('example.com');
+      $url->setPort(8080);
+      $url->setPath('/somepath/');
+      $url->setParameter('param', 123);
 
-      $this->assertEquals('http://example.com:8080/somepath/?param=123', $urlBuilder->getUrl());
+      $this->assertEquals('http://example.com:8080/somepath/?param=123', $url->getUrl());
 
-      $this->assertTrue($urlBuilder->hasParameter('param'));
+      $this->assertTrue($url->hasParameter('param'));
 
     }
 
@@ -39,9 +39,9 @@
         'https://example.com/somepath/?abc=1'
       );
 
-      $urlBuilder = \ReRoute\UrlBuilder::fromRequestContext($requestContext);
+      $url = \ReRoute\Url::fromRequestContext($requestContext);
 
-      $this->assertEquals('https://example.com/somepath/?abc=1', $urlBuilder->getUrl());
+      $this->assertEquals('https://example.com/somepath/?abc=1', $url->getUrl());
 
     }
 

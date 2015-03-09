@@ -21,22 +21,22 @@
         'result'
       );
 
-      $routeMatch = $router->match(
+      $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example.com/item/', 'delete')
       );
       $this->assertNotEmpty($routeMatch, "Route with correct method should match");
 
-      $routeMatch = $router->match(
+      $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example.com/item/', 'get')
       );
       $this->assertEmpty($routeMatch);
 
-      $routeMatch = $router->match(
+      $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example.com/item/?_method=delete')
       );
       $this->assertNotEmpty($routeMatch, "Route with rewrited method should match");
 
-      $routeMatch = $router->match(
+      $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example.com/item/?_method=delete', 'post')
       );
       $this->assertNotEmpty($routeMatch, "Route with incorrect rewrited method should not match");

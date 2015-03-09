@@ -3,7 +3,7 @@
   namespace ReRoute;
 
 
-  abstract class Route {
+  class Route {
 
 
     /**
@@ -25,12 +25,6 @@
 
 
     /**
-     * @var UrlParameters
-     */
-    protected $urlParameters;
-
-
-    /**
      * @var mixed
      */
     protected $result;
@@ -40,6 +34,46 @@
      * @var string
      */
     protected $id;
+
+
+    /**
+     * @var Route[]
+     */
+    protected $routes = [];
+
+
+    /**
+     * @param string $routeId
+     * @param Route $route
+     * @param mixed $routeResult
+     *
+     * @return $this
+     */
+    public function addRoute($routeId, Route $route, $routeResult = null) {
+      $route->setParentRoute($this);
+      $route->setId($routeId);
+      $route->setResult($routeResult);
+      $this->routes[$routeId] = $route;
+      return $this;
+    }
+
+
+    /**
+     * @return Route[]
+     */
+    public function getRoutes() {
+      return $this->routes;
+    }
+
+
+    /**
+     * @param string $routeId
+     *
+     * @return Route
+     */
+    public function getRoute($routeId) {
+      return !empty($this->routes[$routeId]) ? $this->routes[$routeId] : null;
+    }
 
 
     /**
@@ -55,9 +89,20 @@
 
     /**
      * @param Route $route
+     *
+     * @return $this
      */
     public function setParentRoute($route) {
       $this->parentRoute = $route;
+      return $this;
+    }
+
+
+    /**
+     * @return Route
+     */
+    public function getParentRoute() {
+      return $this->parentRoute;
     }
 
 
@@ -126,7 +171,36 @@
      *
      * @return RouteMatch
      */
-    abstract public function match(RequestContext $requestContext);
+    protected function match(RequestContext $requestContext) {
+      return $this->successfulMatch();
+    }
+
+
+    /**
+     * @param RequestContext $requestContext
+     *
+     * @return bool|RouteMatch
+     */
+    public function doMatch(RequestContext $requestContext) {
+      $thisMatch = $this->match($requestContext);
+      if (empty($thisMatch)) {
+        return false;
+      }
+      if (!empty($this->routes)) {
+        foreach ($this->routes as $route) {
+          $routeRequestContext = clone $requestContext;
+          if (!$route->matchModifiers($routeRequestContext)) {
+            continue;
+          }
+          if ($routeMatch = $route->doMatch($routeRequestContext)) {
+            return $this->successfulMatch($routeMatch);
+          }
+        }
+      } else {
+        return $thisMatch;
+      }
+      return false;
+    }
 
 
     /**
@@ -157,29 +231,6 @@
 
 
     /**
-     * @param string|string[] $param
-     * @param string $value
-     * @return $this
-     */
-    public function set($param, $value = null) {
-      if (empty($this->urlParameters)) {
-        $this->urlParameters = new UrlParameters();
-      }
-      if (!is_array($param)) {
-        $param = [$param => $value];
-      }
-      foreach ($param as $p => $val) {
-        if (isset($val)) {
-          $this->urlParameters->addParameter($p, $val);
-        } else {
-          $this->urlParameters->removeParameter($p);
-        }
-      }
-      return $this;
-    }
-
-
-    /**
      * @param string $routeId
      *
      * @return $this
@@ -193,55 +244,64 @@
     /**
      * @return string
      */
-    public function __toString() {
-      return $this->assemble();
+    public function getId() {
+      return $this->id;
     }
 
 
     /**
      * @return string
      */
-    public function assemble() {
-      return $this->build(new UrlBuilder())->getUrl();
+    public function __toString() {
+      return $this->assemble();
     }
 
 
     /**
-     * @param UrlBuilder $url
+     * @param Url $url
+     * @param UrlBuilder $urlBuilder
+     */
+    public function build(Url $url, UrlBuilder $urlBuilder) {
+      if (!empty($this->parentRoute)) {
+        $this->parentRoute->build($url, $urlBuilder);
+      }
+      foreach ($this->modifiers as $modifier) {
+        $modifier->build($url, $urlBuilder);
+      }
+    }
+
+
+    /**
+     * @param $routeId
      *
      * @return UrlBuilder
      */
-    public function build(UrlBuilder $url) {
-      if (!empty($this->parentRoute)) {
-        $this->parentRoute->setUrlParameters($this->urlParameters)->build($url);
+    public function getUrl($routeId) {
+
+      $routeIdParts = explode(':', $routeId);
+      $subRoutes = array_slice($routeIdParts, 1);
+
+      $route = $this->getRoute($routeIdParts[0]);
+      if (empty($route)) {
+        throw new \InvalidArgumentException("No route: " . $routeIdParts[0]);
       }
-      foreach ($this->modifiers as $modifier) {
-        $modifier->setUrlParameters($this->urlParameters)->build($url);
+
+      $urlBuilder = $route->createUrlBuilder();
+
+      if (!empty($subRoutes)) {
+        $urlBuilder = $urlBuilder->getUrl(implode(':', $subRoutes));
       }
-      foreach ($this->urlParameters->getUnusedParameters() as $param => $value) {
-        $url->setParameter($param, $value);
-      }
-      return $url;
+
+      return $urlBuilder;
+
     }
 
 
     /**
-     * @param UrlParameters $urlParameters
-     *x
-     *
-     * @return $this
+     * @return UrlBuilder
      */
-    public function setUrlParameters(UrlParameters $urlParameters) {
-      $this->urlParameters = $urlParameters;
-      return $this;
-    }
-
-
-    public function ensureUrl($url = null) {
-      if (empty($url)) {
-        $url = new UrlBuilder();
-      }
-      return $url;
+    public function createUrlBuilder() {
+      return new UrlBuilder($this);
     }
 
 

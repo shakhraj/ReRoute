@@ -2,8 +2,8 @@
 
   namespace ReRoute\Tests;
 
+  use ReRoute\Route;
   use ReRoute\Route\CommonRoute;
-  use ReRoute\RouteCollection;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
   class RouteCollectionTest extends \PHPUnit_Framework_TestCase {
@@ -17,7 +17,7 @@
       $barRoute = new CommonRoute();
       $barRoute->setPathTemplate('/bar/');
 
-      $collection = new RouteCollection();
+      $collection = new Route();
       $collection
         ->addRoute('foo', $fooRoute)
         ->addRoute('bar', $barRoute);
@@ -40,28 +40,28 @@
 
     public function testMatchingRoutes() {
 
-      $collection = (new RouteCollection())
+      $collection = (new Route())
         ->addRoute('foo', (new CommonRoute())->setPathTemplate('/foo/'))
         ->addRoute('bar', (new CommonRoute())->setPathTemplate('/bar/')->setHostTemplate('bar.com'));
 
       $this->assertNotEmpty(
-        $collection->match(RequestContextFactory::createFromUrl('http://example.com/foo/'))
+        $collection->doMatch(RequestContextFactory::createFromUrl('http://example.com/foo/'))
       );
 
       $this->assertNotEmpty(
-        $collection->match(RequestContextFactory::createFromUrl('http://bar.com/bar/'))
+        $collection->doMatch(RequestContextFactory::createFromUrl('http://bar.com/bar/'))
       );
 
       $this->assertNotEmpty(
-        $collection->match(RequestContextFactory::createFromUrl('http://bar.com/foo/'))
+        $collection->doMatch(RequestContextFactory::createFromUrl('http://bar.com/foo/'))
       );
 
       $this->assertEmpty(
-        $collection->match(RequestContextFactory::createFromUrl('http://bar.com/zzz/'))
+        $collection->doMatch(RequestContextFactory::createFromUrl('http://bar.com/zzz/'))
       );
 
       $this->assertEmpty(
-        $collection->match(RequestContextFactory::createFromUrl('http://example.com/bar/'))
+        $collection->doMatch(RequestContextFactory::createFromUrl('http://example.com/bar/'))
       );
 
     }

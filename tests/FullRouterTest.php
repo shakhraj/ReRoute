@@ -2,10 +2,9 @@
 
   namespace ReRoute\Tests;
 
-  use ReRoute\Route\CommonRoute;
-  use ReRoute\RouteCollection;
-  use ReRoute\Router;
   use ReRoute\Route;
+  use ReRoute\Route\CommonRoute;
+  use ReRoute\Router;
   use ReRoute\Tests\Fixtures\AdminRoute;
   use ReRoute\Tests\Fixtures\LanguagePrefixRouteModifier;
   use ReRoute\Tests\Fixtures\MobileHostRouteModifier;
@@ -21,7 +20,7 @@
 
       $router = new Router();
 
-      $siteRoutes = new RouteCollection();
+      $siteRoutes = new Route();
 
       $siteRoutes->addRoute(
         'homepage',
@@ -76,40 +75,40 @@
 
       $router = $this->getRouter();
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://example.com/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://example.com/'));
       $this->assertNotEmpty($match);
       $this->assertEquals('homepageResult', $match->getRouteResult());
       $this->assertEquals('en', $match->get('lang'));
       $this->assertFalse($match->get('isMobile'));
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://m.example.com/de/items/123/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/de/items/123/'));
       $this->assertNotEmpty($match);
       $this->assertEquals('itemsResult', $match->getRouteResult());
       $this->assertEquals('de', $match->get('lang'));
       $this->assertTrue($match->get('isMobile'));
       $this->assertEquals('123', $match->get('itemId'));
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://example.com/cats/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://example.com/cats/'));
       $this->assertNotEmpty($match);
       $this->assertEquals('catsResult', $match->getRouteResult());
       $this->assertEquals('en', $match->get('lang'));
       $this->assertFalse($match->get('isMobile'));
       $this->assertNull($match->get('catId'));
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://m.example.com/fr/cats/321/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/fr/cats/321/'));
       $this->assertNotEmpty($match);
       $this->assertEquals('catsResult', $match->getRouteResult());
       $this->assertEquals('fr', $match->get('lang'));
       $this->assertTrue($match->get('isMobile'));
       $this->assertEquals('321', $match->get('catId'));
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://m123.example.com/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://m123.example.com/'));
       $this->assertEmpty($match);
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://example.com/it/items/123/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://example.com/it/items/123/'));
       $this->assertEmpty($match);
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://m.example.com/unknownpage/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/unknownpage/'));
       $this->assertEmpty($match);
 
     }
@@ -119,17 +118,17 @@
 
       $router = $this->getRouter();
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://admin.example.com/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://admin.example.com/'));
       $this->assertNotEmpty($match);
       $this->assertEquals('index/index', $match->get('controller'));
       $this->assertEquals('index', $match->get('action'));
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://admin.example.com/items/subitems/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://admin.example.com/items/subitems/'));
       $this->assertNotEmpty($match);
       $this->assertEquals('items/subitems', $match->get('controller'));
       $this->assertEquals('index', $match->get('action'));
 
-      $match = $router->match(RequestContextFactory::createFromUrl('http://admin.example.com/items/subitems/add/'));
+      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://admin.example.com/items/subitems/add/'));
       $this->assertNotEmpty($match);
       $this->assertEquals('items/subitems', $match->get('controller'));
       $this->assertEquals('add', $match->get('action'));
@@ -256,7 +255,7 @@
 
       $router = $this->getRouter();
 
-      $router->match(RequestContextFactory::createFromUrl('http://m.example.com/fr/'));
+      $router->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/fr/'));
 
       $this->assertEquals(
         'http://m.example.com/fr/',

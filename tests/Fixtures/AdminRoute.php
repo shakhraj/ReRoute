@@ -4,6 +4,7 @@
 
   use ReRoute\RequestContext;
   use ReRoute\Route;
+  use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
   class AdminRoute extends Route {
@@ -23,7 +24,7 @@
      *
      * @return bool
      */
-    public function match(RequestContext $requestContext) {
+    protected function match(RequestContext $requestContext) {
 
       if ($requestContext->getHost() != 'admin.example.com') {
         return false;
@@ -43,44 +44,43 @@
     }
 
 
-    public function build(UrlBuilder $url = null) {
-
-      $url = $this->ensureUrl($url);
+    /**
+     * @param Url $url
+     * @param UrlBuilder $urlBuilder
+     */
+    public function build(Url $url, UrlBuilder $urlBuilder) {
 
       $url->setHost('admin.example.com');
 
       $parts = [];
 
-      $action = $this->urlParameters->useParameter('action');
+      $action = $urlBuilder->useParameter('action');
       if (!empty($action) and $action != $this->defaultAction) {
         $parts[] = $action;
       }
 
-      $controllerItem = $this->urlParameters->useParameter('controllerItem');
+      $controllerItem = $urlBuilder->useParameter('controllerItem');
       if (!empty($parts) or (!empty($controllerItem) and $action != $this->defaultControllerItem)) {
         $parts[] = $controllerItem;
       }
 
-      $controllerGroup = $this->urlParameters->useParameter('controllerGroup');
+      $controllerGroup = $urlBuilder->useParameter('controllerGroup');
       if (!empty($parts) or (!empty($controllerGroup) and $action != $this->defaultControllerGroup)) {
         $parts[] = $controllerGroup;
       }
 
       $url->setPath('/' . implode('/', array_reverse($parts)));
 
-      return parent::build($url);
+      parent::build($url, $urlBuilder);
 
     }
 
 
-    public function __call($method, $args) {
-      foreach (['controllerGroup', 'controllerItem', 'action'] as $param) {
-        if (!$this->urlParameters->hasParameter($param)) {
-          $this->urlParameters->addParameter($param, $method);
-          return $this;
-        }
-      }
-      return parent::set($method, !empty($args[0]) ? $args[0] : null);
+    /**
+     * @return AdminUrlBuilder
+     */
+    public function createUrlBuilder() {
+      return new AdminUrlBuilder($this);
     }
 
 

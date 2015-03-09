@@ -36,16 +36,19 @@
     }
 
 
+    public function doMatch(RequestContext $requestContext) {
+      return $this->match($requestContext);
+    }
+
+
     /**
-     * @param UrlBuilder $url
+     * @param Url $url
+     * @param UrlBuilder $urlBuilder
      *
      * @return UrlBuilder
      */
-    public function build(UrlBuilder $url) {
-      if (!empty($this->parentRoute)) {
-        $this->parentRoute->build($url);
-      }
-      return $url;
+    public function build(Url $url, UrlBuilder $urlBuilder) {
+
     }
 
 

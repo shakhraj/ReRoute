@@ -5,8 +5,8 @@
   use ReRoute\RequestContext;
   use ReRoute\Route;
   use ReRoute\RouteMatch;
+  use ReRoute\Url;
   use ReRoute\UrlBuilder;
-  use ReRoute\UrlParameters;
 
   class CommonRoute extends Route {
 
@@ -44,6 +44,7 @@
     /**
      * @param string $template
      * @param string $subject
+     *
      * @return bool
      */
     public function templateMatch($template, $subject, &$matchedParams) {
@@ -73,14 +74,16 @@
 
     /**
      * @param string $template
+     * @param UrlBuilder $urlBuilder
+     *
      * @return string
      */
-    public function templateBuild($template, UrlParameters $urlParameters) {
+    public function templateBuild($template, UrlBuilder $urlBuilder) {
       return preg_replace_callback(
         '!\{([\w]+)\}(\?|)(/?)!',
-        function ($match) use ($urlParameters) {
+        function ($match) use ($urlBuilder) {
           $paramName = $match[1];
-          if ($value = $urlParameters->useParameter($paramName)) {
+          if ($value = $urlBuilder->useParameter($paramName)) {
             return $value . $match[3];
           } elseif (!empty($match[2])) {
             return '';
@@ -97,7 +100,7 @@
      *
      * @return RouteMatch|bool
      */
-    public function match(RequestContext $requestContext) {
+    protected function match(RequestContext $requestContext) {
 
       if (!empty($this->pathTemplate)) {
         if ($this->templateMatch($this->pathTemplate, $requestContext->getPath(), $matchedParams)) {
@@ -221,27 +224,24 @@
 
 
     /**
-     * @param UrlBuilder $url
-     *
-     * @return UrlBuilder
+     * @param Url $url
+     * @param UrlBuilder $urlBuilder
      */
-    public function build(UrlBuilder $url = null) {
-
-      $url = $this->ensureUrl($url);
+    public function build(Url $url, UrlBuilder $urlBuilder) {
 
       if (!empty($this->hostTemplate)) {
-        $url->setHost($this->templateBuild($this->hostTemplate, $this->urlParameters));
+        $url->setHost($this->templateBuild($this->hostTemplate, $urlBuilder));
       }
 
       if (!empty($this->pathTemplate)) {
-        $url->setPath($this->templateBuild($this->pathTemplate, $this->urlParameters));
+        $url->setPath($this->templateBuild($this->pathTemplate, $urlBuilder));
       }
 
       if (!empty($this->scheme)) {
-        $url->setScheme($this->templateBuild($this->scheme, $this->urlParameters));
+        $url->setScheme($this->scheme);
       }
 
-      return parent::build($url);
+      parent::build($url, $urlBuilder);
 
     }
 
