@@ -42,11 +42,15 @@
      * @return UrlBuilder The current instance, implementing a fluent interface
      *
      */
-    public function fromRequestContext(RequestContext $requestContext) {
-      /**
-       * @todo
-       */
-      return $this;
+    public static function fromRequestContext(RequestContext $requestContext) {
+
+      $urlBuilder = new static();
+      $urlBuilder->setScheme($requestContext->getScheme());
+      $urlBuilder->setHost($requestContext->getHost());
+      $urlBuilder->setPath($requestContext->getPath());
+      $urlBuilder->setParameters($requestContext->getParameters());
+
+      return $urlBuilder;
     }
 
 
@@ -70,7 +74,7 @@
      * @api
      */
     public function setPort($port) {
-      $this->port = (int)$port;
+      $this->port = (int) $port;
       return $this;
     }
 
@@ -129,8 +133,6 @@
      * @param mixed $parameter The parameter value
      *
      * @return UrlBuilder The current instance, implementing a fluent interface
-     *
-     * @api
      */
     public function setParameter($name, $parameter) {
       $this->parameters[$name] = $parameter;
@@ -142,6 +144,7 @@
       return
         $this->getScheme() . '://' .
         $this->getHost() .
+        (80 == ($port = $this->getPort()) ? '' : ':' . $port) .
         $this->getPath() .
         (!empty($this->parameters) ? '?' . http_build_query($this->parameters) : '');
     }
@@ -221,6 +224,5 @@
       $this->path = $path;
       return $this;
     }
-
 
   }
