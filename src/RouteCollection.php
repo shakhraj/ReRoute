@@ -69,13 +69,11 @@
 
 
     /**
-     * @param string $method
-     * @param string[] $args
-     *
+     * @param string $routeId
      * @return Route
      */
-    public function __call($method, $args) {
-      $newRoute = ($route = $this->getRoute($method)) ? clone $route : null;
+    public function getUrl($routeId) {
+      $newRoute = ($route = $this->getRoute($routeId)) ? clone $route : null;
       if (!empty($newRoute)) {
         $newRoute->setUrlParameters($this->urlParameters);
       }

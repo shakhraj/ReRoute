@@ -45,7 +45,7 @@
       $route = $router->getRoute('homepage');
       $this->assertInstanceOf('\\ReRoute\\Route', $route);
 
-      $route = $router->homepage();
+      $route = $router->getUrl('homepage');
       $this->assertInstanceOf('\\ReRoute\\Route', $route);
 
     }
@@ -115,8 +115,8 @@
           ->setHostTemplate('example.com')
       );
 
-      $this->assertEquals('http://example.com/', $router->homepage()->build()->getUrl());
-      $this->assertEquals('http://example.com/items/1/', $router->items()->set('itemId', 1)->build()->getUrl());
+      $this->assertEquals('http://example.com/', $router->getUrl('homepage')->assemble());
+      $this->assertEquals('http://example.com/items/1/', $router->getUrl('items')->set('itemId', 1)->assemble());
 
     }
 

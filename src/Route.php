@@ -27,7 +27,7 @@
     /**
      * @var UrlParameters
      */
-    protected $urlParameters = [];
+    protected $urlParameters;
 
 
     /**

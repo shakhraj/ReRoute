@@ -143,43 +143,43 @@
 
       $this->assertEquals(
         'http://example.com/',
-        $router->site()->homepage()->assemble()
+        $router->getUrl('site:homepage')->assemble()
       );
       $this->assertEquals(
         'http://m.example.com/',
-        $router->site()->homepage()->set('isMobile', true)->set('lang', 'en')->assemble()
+        $router->getUrl('site:homepage')->set('isMobile', true)->set('lang', 'en')->assemble()
       );
       $this->assertEquals(
         'http://example.com/fr/',
-        $router->site()->homepage()->set('isMobile', false)->set('lang', 'fr')->assemble()
+        $router->getUrl('site:homepage')->set('isMobile', false)->set('lang', 'fr')->assemble()
       );
       $this->assertEquals(
         'http://m.example.com/fr/',
-        $router->site()->homepage()->set('isMobile', true)->set('lang', 'fr')->assemble()
+        $router->getUrl('site:homepage')->set('isMobile', true)->set('lang', 'fr')->assemble()
       );
       $this->assertEquals(
         'http://m.example.com/fr/',
-        $router->site()->homepage()->set('isMobile', true)->set('lang', 'fr')->assemble()
+        $router->getUrl('site:homepage')->set('isMobile', true)->set('lang', 'fr')->assemble()
       );
 
       $this->assertEquals(
         'http://example.com/?someparam=123',
-        $router->site()->homepage()->set('someparam', 123)->assemble()
+        $router->getUrl('site:homepage')->set('someparam', 123)->assemble()
       );
 
       $this->assertEquals(
         'http://example.com/fr/items/123/',
-        $router->site()->items()->set('lang', 'fr')->set('itemId', 123)->assemble()
+        $router->getUrl('site:items')->set('lang', 'fr')->set('itemId', 123)->assemble()
       );
 
       $this->assertEquals(
         'http://example.com/de/cats/',
-        $router->site()->cats()->set('lang', 'de')->assemble()
+        $router->getUrl('site:cats')->set('lang', 'de')->assemble()
       );
 
       $this->assertEquals(
         'http://m.example.com/de/cats/123/',
-        $router->site()->cats()->set('catId', 123)->set('lang', 'de')->set('isMobile', true)->assemble()
+        $router->getUrl('site:cats')->set('catId', 123)->set('lang', 'de')->set('isMobile', true)->assemble()
       );
 
     }
@@ -191,27 +191,27 @@
 
       $this->assertEquals(
         'http://admin.example.com/',
-        $router->admin()->assemble()
+        $router->getUrl('admin')->assemble()
       );
       $this->assertEquals(
         'http://admin.example.com/items',
-        $router->admin()->items()->assemble()
+        $router->getUrl('admin')->items()->assemble()
       );
       $this->assertEquals(
         'http://admin.example.com/items/subitems',
-        $router->admin()->items()->subitems()->assemble()
+        $router->getUrl('admin')->items()->subitems()->assemble()
       );
       $this->assertEquals(
         'http://admin.example.com/items/subitems/add',
-        $router->admin()->items()->subitems()->add()->assemble()
+        $router->getUrl('admin')->items()->subitems()->add()->assemble()
       );
       $this->assertEquals(
         'http://admin.example.com/items/subitems/add?foo=123',
-        $router->admin()->items()->subitems()->add()->foo(123)->assemble()
+        $router->getUrl('admin')->items()->subitems()->add()->foo(123)->assemble()
       );
       $this->assertEquals(
         'http://admin.example.com/items/subitems/add?lang=fr&foo=123',
-        $router->admin()->items()->subitems()->add()->lang('fr')->foo(123)->assemble()
+        $router->getUrl('admin')->items()->subitems()->add()->lang('fr')->foo(123)->assemble()
       );
 
     }
@@ -223,7 +223,7 @@
 
       $this->assertEquals(
         'http://m.example.com/fr/',
-        (string)$router->site()->homepage()->set('isMobile', true)->set('lang', 'fr')
+        (string)$router->getUrl('site:homepage')->set('isMobile', true)->set('lang', 'fr')
       );
 
     }
@@ -236,7 +236,7 @@
 
       $router = $this->getRouter();
 
-      $this->assertNull($router->homepage());
+      $this->assertNull($router->getUrl('homepage'));
 
     }
 
@@ -247,7 +247,7 @@
     public function testNotEnoughParams() {
 
       $router = $this->getRouter();
-      $router->site()->items()->set('someParam', 123)->assemble();
+      $router->getUrl('site:items')->set('someParam', 123)->assemble();
 
     }
 
@@ -260,20 +260,20 @@
 
       $this->assertEquals(
         'http://m.example.com/fr/',
-        $router->site()->homepage()->assemble()
+        $router->getUrl('site:homepage')->assemble()
       );
 
       $this->assertEquals(
         'http://m.example.com/fr/items/123/',
-        $router->site()->items()->set('itemId', 123)->assemble()
+        $router->getUrl('site:items')->set('itemId', 123)->assemble()
       );
 
       $this->assertEquals(
         'http://m.example.com/items/123/',
-        $router->site()->items()->set('itemId', 123)->set('lang', 'en')->assemble()
+        $router->getUrl('site:items')->set('itemId', 123)->set('lang', 'en')->assemble()
       );
 
-      $url = $router->site()->items()->set('itemId', 123)->set('lang', 'en')->set('isMobile', false);
+      $url = $router->getUrl('site:items')->set('itemId', 123)->set('lang', 'en')->set('isMobile', false);
 
       $this->assertEquals(
         'http://example.com/items/123/',

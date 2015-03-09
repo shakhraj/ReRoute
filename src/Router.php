@@ -107,19 +107,20 @@
      * @param string $methodOverride
      */
     public function setMethodOverride($methodOverride) {
-      $this->methodOverride = (string)$methodOverride;
+      $this->methodOverride = (string) $methodOverride;
     }
 
 
     /**
-     * @param string $method
-     * @param string[] $args
-     *
+     * @param $routeId
      * @return Route
      */
-    public function __call($method, $args) {
+    public function getUrl($routeId) {
 
-      $route = $this->getRoute($method);
+      $routeId = explode(':', $routeId);
+      $subroutes = array_slice($routeId, 1);
+
+      $route = $this->getRoute($routeId[0]);
       if (empty($route)) {
         return null;
       }
@@ -132,6 +133,12 @@
       }
 
       $resultRoute->setUrlParameters($urlParameters);
+
+      if ($resultRoute instanceof RouteCollection) {
+        if (!empty($subroutes)) {
+          $resultRoute = $resultRoute->getUrl(implode(':', $subroutes));
+        }
+      }
 
       return $resultRoute;
 
@@ -149,6 +156,5 @@
       }
       throw new \InvalidArgumentException("Unknown route id: " . $routeId);
     }
-
 
   }
