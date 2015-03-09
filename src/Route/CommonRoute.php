@@ -44,16 +44,13 @@
     /**
      * @param string $template
      * @param string $subject
+     * @return bool
      */
     public function templateMatch($template, $subject, &$matchedParams) {
       $matchedParams = [];
       $parametersRegex = $this->parametersRegex;
       $templateRegex = preg_replace_callback(
         '!\{([\w]+)\}(\?|)([/]?)!',
-
-        /**
-         * @param string $match
-         */
         function ($match) use ($parametersRegex) {
           $paramName = $match[1];
           $paramRegex = !empty($parametersRegex[$paramName]) ? $parametersRegex[$paramName] : '[^/]+';
@@ -76,14 +73,11 @@
 
     /**
      * @param string $template
+     * @return string
      */
     public function templateBuild($template, UrlParameters $urlParameters) {
       return preg_replace_callback(
-        '!\{([\w]+)\}(\?|)([/])!',
-
-        /**
-         * @param string $match
-         */
+        '!\{([\w]+)\}(\?|)(/?)!',
         function ($match) use ($urlParameters) {
           $paramName = $match[1];
           if ($value = $urlParameters->useParameter($paramName)) {
@@ -250,6 +244,5 @@
       return parent::build($url);
 
     }
-
 
   }

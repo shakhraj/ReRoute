@@ -80,7 +80,7 @@
           return $this;
         }
       }
-      return parent::__call($method, $args);
+      return parent::set($method, !empty($args[0]) ? $args[0] : null);
     }
 
 

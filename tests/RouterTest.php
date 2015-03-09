@@ -116,7 +116,7 @@
       );
 
       $this->assertEquals('http://example.com/', $router->homepage()->build()->getUrl());
-      $this->assertEquals('http://example.com/items/1/', $router->items()->itemId(1)->build()->getUrl());
+      $this->assertEquals('http://example.com/items/1/', $router->items()->set('itemId', 1)->build()->getUrl());
 
     }
 

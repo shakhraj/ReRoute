@@ -157,19 +157,23 @@
 
 
     /**
-     * @param string $method
-     * @param string[] $args
-     *
+     * @param string|string[] $param
+     * @param string $value
      * @return $this
      */
-    public function __call($method, $args) {
+    public function set($param, $value = null) {
       if (empty($this->urlParameters)) {
         $this->urlParameters = new UrlParameters();
       }
-      if (isset($args[0])) {
-        $this->urlParameters->addParameter($method, $args[0]);
-      } else {
-        $this->urlParameters->removeParameter($method);
+      if (!is_array($param)) {
+        $param = [$param => $value];
+      }
+      foreach ($param as $p => $val) {
+        if (isset($val)) {
+          $this->urlParameters->addParameter($p, $val);
+        } else {
+          $this->urlParameters->removeParameter($p);
+        }
       }
       return $this;
     }
