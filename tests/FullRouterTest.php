@@ -44,7 +44,7 @@
         'cats',
         (new CommonRoute())
           ->setScheme('http')
-          ->setPathTemplate('/cats/{catId:\d*:}/')
+          ->setPathTemplate('/cats/{catId:\d+:}/')
           ->setHostTemplate('example.com'),
         'catsResult'
       );

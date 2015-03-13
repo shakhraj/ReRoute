@@ -1,4 +1,4 @@
-<?
+<?php
 
   namespace ReRoute\Route;
 
@@ -142,6 +142,10 @@
             $regexp = $rawRegexpAndValue[0];
           }
 
+          if ($defaultValue !== null) {
+            $regexp = $regexp . '|';
+          }
+
         }
 
 
@@ -160,6 +164,7 @@
         ];
 
       }
+
 
       $this->parameters = $parameters;
 

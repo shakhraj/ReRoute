@@ -1,4 +1,4 @@
-<?
+<?php
 
   namespace ReRoute\Tests;
 
@@ -37,7 +37,7 @@
 
     public function testEmptyDefaultValue() {
 
-      $template = new CommonRouteTemplate('/page/{id:\d*:}/');
+      $template = new CommonRouteTemplate('/page/{id:\d+:}/');
 
       $template->match('/page/', $data);
       $this->assertArrayHasKey('id', $data);
@@ -46,7 +46,7 @@
     }
 
     public function testDefaultValue() {
-      $template = new CommonRouteTemplate('/list/{page:\d*:1}/');
+      $template = new CommonRouteTemplate('/list/{page:\d+:1}/');
       $result = $template->match('/list/', $data);
       $this->assertTrue($result);
 
@@ -54,14 +54,14 @@
       $this->assertEquals('1', $data['page']);
 
 
-      $template = new CommonRouteTemplate('/list/{page:\d*:1}/custom-page/');
+      $template = new CommonRouteTemplate('/list/{page:\d+:1}/custom-page/');
       $result = $template->match('/list/custom-page/', $data);
       $this->assertTrue($result);
 
       $this->assertArrayHasKey('page', $data);
       $this->assertEquals('1', $data['page']);
 
-      $template = new CommonRouteTemplate('/list/{page:\d*:1}/custom-page/');
+      $template = new CommonRouteTemplate('/list/{page:\d+:1}/custom-page/');
       $result = $template->match('/list/123/custom-page/', $data);
       $this->assertTrue($result);
 
@@ -73,10 +73,17 @@
 
     public function testBuildWithDefaultParameter() {
       $template = new CommonRouteTemplate('/list/{page:\d*:1}/');
+      $this->assertEmpty($template->match('/list/-1/'));
+      $this->assertEmpty($template->match('/list/custom/', $data));
+      $this->assertNotEmpty($template->match('/list/123/'));
+      $this->assertNotEmpty($template->match('/list/1/'));
+
+
+      $template = new CommonRouteTemplate('/list/{page:\d+:1}/');
       $path = $template->build();
       $this->assertEquals('/list/', $path);
 
-      $template = new CommonRouteTemplate('/list/{page:\d*:1}/');
+      $template = new CommonRouteTemplate('/list/{page:\d+:1}/');
       $path = $template->build(array('page' => 123));
       $this->assertEquals('/list/123/', $path);
 
