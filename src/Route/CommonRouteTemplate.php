@@ -11,7 +11,12 @@
     /**
      * @var string
      */
-    protected $template = null;
+    protected $templateMatch = null;
+
+    /**
+     * @var string
+     */
+    protected $templateBuild = null;
 
     /**
      * @var array
@@ -28,7 +33,6 @@
       }
 
       $this->prepare($template);
-
     }
 
 
@@ -37,15 +41,19 @@
      */
     protected function prepare($template) {
 
-      $this->template = $template;
+      $this->templateMatch = $template;
+      $this->templateBuild = $template;
+
       preg_match_all('![\{\}]!', $template, $delimiters, PREG_OFFSET_CAPTURE);
 
 
       $delimiters = $delimiters[0];
-
+      if (empty($delimiters)) {
+        return;
+      }
       # 1. skip quoted delimiters
-      foreach ($delimiters as $key => $value) {
-        $symbol = mb_substr($template, $value[1] - 1, 1);
+      foreach ($delimiters as $key => $rawParameterInfo) {
+        $symbol = mb_substr($template, $rawParameterInfo[1] - 1, 1);
         if ($symbol == '\\') {
           unset($delimiters[$key]);
         }
@@ -53,9 +61,8 @@
 
       $delimiters = array_values($delimiters);
 
-      $delimitersNum = count($delimiters);
 
-      if ($delimitersNum % 2 !== 0) {
+      if (count($delimiters) % 2 !== 0) {
         throw new \InvalidArgumentException("Invalid template. Different number of delimiters");
       }
 
@@ -64,23 +71,14 @@
       $previousStartIndex = null;
       $state = null;
 
-      if ($delimiters[0][0] !== '{') {
-        throw new \InvalidArgumentException("Invalid group start");
-      }
-
-
-      if ($delimiters[($delimitersNum - 1)][0] !== '}') {
-        throw new \InvalidArgumentException("Invalid group end");
-      }
-
-      foreach ($delimiters as $value) {
+      foreach ($delimiters as $rawParameterInfo) {
         if ($state == null) {
           $state = 1;
-          $previousStartIndex = $value[1];
+          $previousStartIndex = $rawParameterInfo[1];
           continue;
         }
 
-        if ($value[0] == '}') {
+        if ($rawParameterInfo[0] == '}') {
           $state--;
         } else {
           $state++;
@@ -88,22 +86,18 @@
 
 
         if ($state == 0 and $previousStartIndex !== null) {
-          $parameters[] = mb_substr($template, $previousStartIndex, $value[1] - $previousStartIndex + 1);
+          $parameters[] = mb_substr($template, $previousStartIndex, $rawParameterInfo[1] - $previousStartIndex + 1);
           $previousStartIndex = null;
         }
 
       }
 
-      if ($delimitersNum / 2 != count($parameters)) {
-        throw new \InvalidArgumentException('Cant detect groups from delimiters');
-      }
-
 
       # rebuild groups with names and value params
-      foreach ($parameters as $i => $value) {
+      foreach ($parameters as $i => $rawParameterInfo) {
         unset($parameters[$i]);
 
-        preg_match('!^\{([a-z][0-9a-z]*)(:|\})!i', $value, $rawGroupName);
+        preg_match('!^\{([a-z][0-9a-z]*)(:|\})!i', $rawParameterInfo, $rawGroupName);
 
 
         if (empty($rawGroupName[1])) {
@@ -116,32 +110,52 @@
           throw new \InvalidArgumentException("Parameter with name already defined:" . $name);
         }
 
-        $defaultRegex = '[^/]+';
+        $regexp = '[^/]+';
         $defaultValue = null;
-
 
         if ($rawGroupName[2] != '}') {
           # detect default parameter
-          $parameterInfo = substr($value, strlen($rawGroupName[0]), -1);
-          $rawRegexpAndValue = preg_split('![^\\\\]:!', $parameterInfo);
-          if (count($rawRegexpAndValue) > 2) {
+          $parameterInfo = substr($rawParameterInfo, strlen($rawGroupName[0]), -1);
+
+
+          $rawRegexpAndValue = preg_split('#(?<!\\\)\:#', $parameterInfo, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+
+          $count = count($rawRegexpAndValue);
+
+          if ($count > 2) {
             throw new \InvalidArgumentException("Cant detect default value and regexp for parameter:" . $name);
           }
-
-          if (isset($rawRegexpAndValue[0])) {
-            $defaultRegex = $rawRegexpAndValue[0];
-          }
+          
 
           if (isset($rawRegexpAndValue[1])) {
-            $defaultValue = $rawRegexpAndValue[1];
+            $defaultValue = preg_replace('#(\\\\)([:\{\}])#', '$2', $rawRegexpAndValue[1]);
           }
+
+
+          if ($defaultValue != null and empty($rawRegexpAndValue[0])) {
+            throw new \InvalidArgumentException('Please specify regexp for parameter:' . $name);
+          }
+
+
+          if (!empty($rawRegexpAndValue[0])) {
+            $regexp = $rawRegexpAndValue[0];
+          }
+
         }
 
 
-        $this->template = str_replace($value, '{' . $name . '}', $this->template);
+        $replaceToString = '(?P<' . $name . '>' . $regexp . ')$1';
+
+        if ($defaultValue != null) {
+          $replaceToString .= '?';
+        }
+
+        $this->templateMatch = preg_replace('!' . preg_quote($rawParameterInfo) . '(.)!', $replaceToString, $this->templateMatch);
+        $this->templateBuild = str_replace($rawParameterInfo, '{' . $name . '}', $this->templateBuild);
 
         $parameters[$name] = [
-          $defaultRegex,
+          $regexp,
           $defaultValue,
         ];
 
@@ -151,11 +165,81 @@
 
     }
 
+    public function match($input, &$matchedParams = array()) {
+      $matchedParams = [];
+
+      if (preg_match('!^' . $this->templateMatch . '$!', $input, $match)) {
+        foreach ($match as $matchId => $matchValue) {
+          if (is_string($matchId)) {
+            $matchedParams[$matchId] = $matchValue;
+          }
+        }
+
+
+        foreach ($this->parameters as $name => $parameter) {
+          if ($parameter[1] == null) {
+            continue;
+          }
+
+          if (isset($matchedParams[$name]) and $matchedParams[$name] !== '') {
+            continue;
+          }
+
+          $matchedParams[$name] = $parameter[1];
+        }
+
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    /**
+     * @param array $parameters
+     * @param array $usedParameters
+     * @return string
+     */
+    public function build(array $parameters = array(), array &$usedParameters = array()) {
+      $path = $this->templateBuild;
+
+      foreach ($this->parameters as $name => $parameterInfo) {
+        $regexp = $parameterInfo[0];
+        $defaultValue = $parameterInfo[1];
+
+        $value = (isset($parameters[$name])) ? $parameters[$name] : null;
+
+
+        if ($value == null and $defaultValue === null) {
+          throw new \InvalidArgumentException("Require parameter:" . $name);
+        }
+
+
+        if ($value == $defaultValue or $value == null) {
+          # skip default values
+          $usedParameters[$name] = true;
+          $path = preg_replace('!\{' . $name . '\}.?!', '', $path);
+          continue;
+        }
+
+        # not empty value 
+        if (!preg_match('~' . $regexp . '~', $value)) {
+          throw new \InvalidArgumentException("Invalid parameter: " . $name);
+        }
+
+        $usedParameters[$name] = true;
+        $path = preg_replace('!\{' . $name . '\}!', $value, $path);
+      }
+
+
+      return $path;
+
+    }
+
     /**
      * @return string
      */
-    public function getTemplate() {
-      return $this->template;
+    public function getTemplateMatch() {
+      return $this->templateMatch;
     }
 
     /**
@@ -163,6 +247,13 @@
      */
     public function getParameters() {
       return $this->parameters;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTemplateBuild() {
+      return $this->templateBuild;
     }
 
   }
