@@ -44,9 +44,8 @@
         'cats',
         (new CommonRoute())
           ->setScheme('http')
-          ->setPathTemplate('/cats/{catId}?/')
-          ->setHostTemplate('example.com')
-          ->setParameterRegex('catId', '\d+'),
+          ->setPathTemplate('/cats/{catId:\d*:}/')
+          ->setHostTemplate('example.com'),
         'catsResult'
       );
 
@@ -93,7 +92,7 @@
       $this->assertEquals('catsResult', $match->getRouteResult());
       $this->assertEquals('en', $match->get('lang'));
       $this->assertFalse($match->get('isMobile'));
-      $this->assertNull($match->get('catId'));
+      $this->assertEmpty($match->get('catId'));
 
       $match = $router->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/fr/cats/321/'));
       $this->assertNotEmpty($match);

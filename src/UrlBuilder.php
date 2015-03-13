@@ -147,6 +147,13 @@
       return null;
     }
 
+    /**
+     * @return array
+     */
+    public function getParameters() {
+      return array_merge($this->params, $this->defaultParams);
+    }
+
 
     /**
      * @return string[]

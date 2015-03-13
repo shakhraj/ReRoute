@@ -28,6 +28,7 @@
      * @param $template
      */
     public function __construct($template) {
+
       if (!is_string($template)) {
         throw new \InvalidArgumentException("Invalid template. Expect string. Given: " . gettype($template));
       }
@@ -126,14 +127,13 @@
           if ($count > 2) {
             throw new \InvalidArgumentException("Cant detect default value and regexp for parameter:" . $name);
           }
-          
+
 
           if (isset($rawRegexpAndValue[1])) {
             $defaultValue = preg_replace('#(\\\\)([:\{\}])#', '$2', $rawRegexpAndValue[1]);
           }
 
-
-          if ($defaultValue != null and empty($rawRegexpAndValue[0])) {
+          if ($defaultValue !== null and empty($rawRegexpAndValue[0])) {
             throw new \InvalidArgumentException('Please specify regexp for parameter:' . $name);
           }
 
@@ -147,7 +147,7 @@
 
         $replaceToString = '(?P<' . $name . '>' . $regexp . ')$1';
 
-        if ($defaultValue != null) {
+        if ($defaultValue !== null) {
           $replaceToString .= '?';
         }
 
@@ -165,8 +165,8 @@
 
     }
 
-    public function match($input, &$matchedParams = array()) {
-      $matchedParams = [];
+    public function match($input, &$matchedParams = null) {
+      $matchedParams = array();
 
       if (preg_match('!^' . $this->templateMatch . '$!', $input, $match)) {
         foreach ($match as $matchId => $matchValue) {
@@ -199,7 +199,8 @@
      * @param array $usedParameters
      * @return string
      */
-    public function build(array $parameters = array(), array &$usedParameters = array()) {
+    public function build(array $parameters = array(), &$usedParameters = null) {
+      $usedParameters = array();
       $path = $this->templateBuild;
 
       foreach ($this->parameters as $name => $parameterInfo) {
@@ -216,7 +217,7 @@
 
         if ($value == $defaultValue or $value == null) {
           # skip default values
-          $usedParameters[$name] = true;
+          $usedParameters[$name] = $name;
           $path = preg_replace('!\{' . $name . '\}.?!', '', $path);
           continue;
         }
@@ -226,7 +227,7 @@
           throw new \InvalidArgumentException("Invalid parameter: " . $name);
         }
 
-        $usedParameters[$name] = true;
+        $usedParameters[$name] = $name;
         $path = preg_replace('!\{' . $name . '\}!', $value, $path);
       }
 

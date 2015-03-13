@@ -19,9 +19,9 @@
         ->setHostTemplate('example.com');
 
       $this->assertEquals('http', $route->getScheme());
-      $this->assertEquals('/item/', $route->getPathTemplate());
+      $this->assertEquals('/item/', $route->getPathTemplate()->getTemplateBuild());
       $this->assertEquals('post', $route->getMethod());
-      $this->assertEquals('example.com', $route->getHostTemplate());
+      $this->assertEquals('example.com', $route->getHostTemplate()->getTemplateBuild());
 
       $this->assertNotEMpty(
         $route->doMatch(
@@ -62,12 +62,8 @@
       $route = (new CommonRoute())
         ->setMethod('get|post')
         ->setScheme('http')
-        ->setPathTemplate('/item/{itemId}/')
-        ->setHostTemplate('{subdomain}.example.com');
-
-      $route
-        ->setParameterRegex('subdomain', '[a-z]{2,5}')
-        ->setParameterRegex('itemId', '\d+');
+        ->setPathTemplate('/item/{itemId:\d+}/')
+        ->setHostTemplate('{subdomain:[a-z]{2,5}}.example.com');
 
       $requestContext = RequestContextFactory::createFromUrl($url, $method);
 

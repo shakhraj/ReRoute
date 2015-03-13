@@ -35,6 +35,16 @@
 
     }
 
+    public function testEmptyDefaultValue() {
+
+      $template = new CommonRouteTemplate('/page/{id:\d*:}/');
+
+      $template->match('/page/', $data);
+      $this->assertArrayHasKey('id', $data);
+      $this->assertEquals('', $data['id']);
+
+    }
+
     public function testDefaultValue() {
       $template = new CommonRouteTemplate('/list/{page:\d*:1}/');
       $result = $template->match('/list/', $data);

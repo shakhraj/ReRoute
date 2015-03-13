@@ -12,13 +12,13 @@
 
 
     /**
-     * @var string
+     * @var CommonRouteTemplate
      */
     public $pathTemplate = null;
 
 
     /**
-     * @var string
+     * @var CommonRouteTemplate
      */
     public $hostTemplate = null;
 
@@ -36,18 +36,12 @@
 
 
     /**
-     * @var string[]
-     */
-    public $parametersRegex = [];
-
-
-    /**
-     * @param string $template
+     * @param CommonRouteTemplate $template
      * @param string $subject
      *
      * @return bool
      */
-    public function templateMatch($template, $subject, &$matchedParams) {
+    public function templateMatch(CommonRouteTemplate $template, $subject, &$matchedParams) {
       $matchedParams = [];
       $parametersRegex = $this->parametersRegex;
       $templateRegex = preg_replace_callback(
@@ -73,25 +67,20 @@
 
 
     /**
-     * @param string $template
+     * @param CommonRouteTemplate $template
      * @param UrlBuilder $urlBuilder
-     *
      * @return string
      */
-    public function templateBuild($template, UrlBuilder $urlBuilder) {
-      return preg_replace_callback(
-        '!\{([\w]+)\}(\?|)(/?)!',
-        function ($match) use ($urlBuilder) {
-          $paramName = $match[1];
-          if ($value = $urlBuilder->useParameter($paramName)) {
-            return $value . $match[3];
-          } elseif (!empty($match[2])) {
-            return '';
-          }
-          throw new \InvalidArgumentException("No value for [" . $paramName . "]");
-        },
-        $template
-      );
+    public function templateBuild(CommonRouteTemplate $template, UrlBuilder $urlBuilder) {
+
+      $parameters = $urlBuilder->getParameters();
+
+      $path = $template->build($parameters, $usedParameters);
+      foreach ($usedParameters as $name) {
+        $urlBuilder->useParameter($name);
+      }
+
+      return $path;
     }
 
 
@@ -103,7 +92,7 @@
     protected function match(RequestContext $requestContext) {
 
       if (!empty($this->pathTemplate)) {
-        if ($this->templateMatch($this->pathTemplate, $requestContext->getPath(), $matchedParams)) {
+        if ($this->pathTemplate->match($requestContext->getPath(), $matchedParams)) {
           $this->storeParams($matchedParams);
         } else {
           return false;
@@ -112,7 +101,7 @@
 
 
       if (!empty($this->hostTemplate)) {
-        if ($this->templateMatch($this->hostTemplate, $requestContext->getHost(), $matchedParams)) {
+        if ($this->hostTemplate->match($requestContext->getHost(), $matchedParams)) {
           $this->storeParams($matchedParams);
         } else {
           return false;
@@ -136,7 +125,7 @@
 
 
     /**
-     * @return string
+     * @return CommonRouteTemplate
      */
     public function getPathTemplate() {
       return $this->pathTemplate;
@@ -149,13 +138,20 @@
      * @return $this
      */
     public function setPathTemplate($pathTemplate) {
-      $this->pathTemplate = $pathTemplate;
+      if (is_string($pathTemplate)) {
+        $this->pathTemplate = new CommonRouteTemplate($pathTemplate);
+      } elseif ($pathTemplate instanceof CommonRouteTemplate) {
+        $this->pathTemplate = $pathTemplate;
+      } else {
+        throw new \InvalidArgumentException("Invalid pathTemplate parameter. Expect string or instance of CommonRouteTemplate. Given:" . gettype($pathTemplate));
+      }
+
       return $this;
     }
 
 
     /**
-     * @return string
+     * @return CommonRouteTemplate
      */
     public function getHostTemplate() {
       return $this->hostTemplate;
@@ -168,7 +164,14 @@
      * @return $this
      */
     public function setHostTemplate($hostTemplate) {
-      $this->hostTemplate = $hostTemplate;
+      if (is_string($hostTemplate)) {
+        $this->hostTemplate = new CommonRouteTemplate($hostTemplate);
+      } elseif ($hostTemplate instanceof CommonRouteTemplate) {
+        $this->hostTemplate = $hostTemplate;
+      } else {
+        throw new \InvalidArgumentException("Invalid hostTemplate parameter. Expect string or instance of CommonRouteTemplate. Given:" . gettype($hostTemplate));
+      }
+
       return $this;
     }
 
