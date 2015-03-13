@@ -3,6 +3,10 @@
   namespace ReRoute;
 
 
+  /**
+   *
+   * @package ReRoute
+   */
   class Router extends Route {
 
 
@@ -44,6 +48,10 @@
     }
 
 
+    /**
+     * @param RequestContext $requestContext
+     * @return bool|RouteMatch
+     */
     public function doMatch(RequestContext $requestContext) {
       if (!empty($this->methodOverride)) {
         if ($method = $requestContext->getParameter($this->methodOverride)) {
@@ -58,6 +66,10 @@
     }
 
 
+    /**
+     * @param $routeId
+     * @return UrlBuilder
+     */
     public function getUrl($routeId) {
       $urlBuilder = parent::getUrl($routeId);
       if (!empty($this->routeMatchContext)) {

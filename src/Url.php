@@ -4,18 +4,34 @@
   namespace ReRoute;
 
 
+  /**
+   *
+   * @package ReRoute
+   */
   class Url {
 
 
+    /**
+     * @var
+     */
     private $path;
 
 
+    /**
+     * @var
+     */
     private $host;
 
 
+    /**
+     * @var
+     */
     private $scheme;
 
 
+    /**
+     * @var
+     */
     private $port;
 
 
@@ -25,6 +41,13 @@
     private $parameters = [];
 
 
+    /**
+     * @param string $host
+     * @param string $scheme
+     * @param int $port
+     * @param string $path
+     * @param array $parameters
+     */
     public function __construct($host = 'localhost', $scheme = 'http', $port = 80, $path = '/', $parameters = []) {
       $this->setHost($host);
       $this->setScheme($scheme);
@@ -140,6 +163,9 @@
     }
 
 
+    /**
+     * @return string
+     */
     public function getUrl() {
       return
         $this->getScheme() . '://' .

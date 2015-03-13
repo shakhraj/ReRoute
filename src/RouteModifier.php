@@ -2,6 +2,10 @@
 
   namespace ReRoute;
 
+  /**
+   *
+   * @package ReRoute
+   */
   abstract class RouteModifier extends Route {
 
 
@@ -36,6 +40,10 @@
     }
 
 
+    /**
+     * @param RequestContext $requestContext
+     * @return RouteMatch
+     */
     public function doMatch(RequestContext $requestContext) {
       return $this->match($requestContext);
     }

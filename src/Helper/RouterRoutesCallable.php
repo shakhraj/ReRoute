@@ -8,7 +8,7 @@
      * @param string $method
      * @param string[] $args
      *
-     * @return Route
+     * @return \ReRoute\Route
      */
     public function __call($method, $args) {
       return $this->getUrl($method);

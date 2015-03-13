@@ -8,6 +8,10 @@
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
+  /**
+   *
+   * @package ReRoute\Route
+   */
   class CommonRoute extends Route {
 
 

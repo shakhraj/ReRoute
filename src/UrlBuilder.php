@@ -16,19 +16,19 @@
     /**
      * @var array
      */
-    public $defaultParams = [];
+    protected $defaultParams = [];
 
 
     /**
      * @var array
      */
-    public $params = [];
+    protected $params = [];
 
 
     /**
      * @var array
      */
-    public $usedParams = [];
+    protected $usedParams = [];
 
 
     /**

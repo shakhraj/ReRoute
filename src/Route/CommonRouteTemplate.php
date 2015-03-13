@@ -6,6 +6,10 @@
    *
    * @package ReRoute\Route
    */
+  /**
+   *
+   * @package ReRoute\Route
+   */
   class CommonRouteTemplate {
 
     /**
@@ -170,6 +174,11 @@
 
     }
 
+    /**
+     * @param string $input
+     * @param null $matchedParams
+     * @return bool
+     */
     public function match($input, &$matchedParams = null) {
       $matchedParams = array();
 

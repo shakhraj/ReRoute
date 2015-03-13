@@ -3,6 +3,10 @@
   namespace ReRoute;
 
 
+  /**
+   *
+   * @package ReRoute
+   */
   class Route {
 
 
@@ -250,14 +254,6 @@
 
 
     /**
-     * @return string
-     */
-    public function __toString() {
-      return $this->assemble();
-    }
-
-
-    /**
      * @param Url $url
      * @param UrlBuilder $urlBuilder
      */
@@ -303,6 +299,5 @@
     public function createUrlBuilder() {
       return new UrlBuilder($this);
     }
-
 
   }

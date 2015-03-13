@@ -4,18 +4,34 @@
   namespace ReRoute;
 
 
+  /**
+   *
+   * @package ReRoute
+   */
   class RequestContext {
 
 
+    /**
+     * @var
+     */
     private $path;
 
 
+    /**
+     * @var
+     */
     private $method;
 
 
+    /**
+     * @var
+     */
     private $host;
 
 
+    /**
+     * @var
+     */
     private $scheme;
 
 

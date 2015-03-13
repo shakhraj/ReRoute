@@ -3,6 +3,10 @@
   namespace ReRoute;
 
 
+  /**
+   *
+   * @package ReRoute
+   */
   class RouteMatch {
 
 
@@ -22,11 +26,6 @@
      * @var array
      */
     private $parameters = [];
-
-
-    public function __construct() {
-
-    }
 
 
     /**
@@ -115,6 +114,5 @@
     public function get($name) {
       return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
-
 
   }
