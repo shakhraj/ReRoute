@@ -6,7 +6,7 @@
       "email": "shakhraj@gmail.com"
     }
   ],
-  "require": {
+  "require-dev": {
     "phpunit/phpunit": "4.5.*"
   },
   "autoload": {
