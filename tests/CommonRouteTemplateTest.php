@@ -132,6 +132,12 @@
       $this->assertEquals('/users/}', $template->build(['id' => '}']));
     }
 
+    public function testPathWithDotMatch() {
+      $template = new CommonRouteTemplate('/page/contacts\.html');
+      $this->assertTrue($template->match('/page/contacts.html'));
+      $this->assertFalse($template->match('/page/contacts1html'));
+    }
+
 
     public function testWithQuotedDefaultValueDefinition() {
 

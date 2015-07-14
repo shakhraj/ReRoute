@@ -41,37 +41,6 @@
 
     /**
      * @param CommonRouteTemplate $template
-     * @param string $subject
-     *
-     * @return bool
-     */
-    public function templateMatch(CommonRouteTemplate $template, $subject, &$matchedParams) {
-      $matchedParams = [];
-      $parametersRegex = $this->parametersRegex;
-      $templateRegex = preg_replace_callback(
-        '!\{([\w]+)\}(\?|)([/]?)!',
-        function ($match) use ($parametersRegex) {
-          $paramName = $match[1];
-          $paramRegex = !empty($parametersRegex[$paramName]) ? $parametersRegex[$paramName] : '[^/]+';
-          return '((?<' . $paramName . '>' . $paramRegex . ')' . $match[3] . ')' . $match[2];
-        },
-        $template
-      );
-      if (preg_match('!^' . $templateRegex . '$!', $subject, $match)) {
-        foreach ($match as $matchId => $matchValue) {
-          if (is_string($matchId)) {
-            $matchedParams[$matchId] = $matchValue;
-          }
-        }
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-
-    /**
-     * @param CommonRouteTemplate $template
      * @param UrlBuilder $urlBuilder
      * @return string
      */
@@ -217,17 +186,6 @@
       return $this;
     }
 
-
-    /**
-     * @param string $parameterName
-     * @param string $regex
-     *
-     * @return $this
-     */
-    public function setParameterRegex($parameterName, $regex) {
-      $this->parametersRegex[$parameterName] = $regex;
-      return $this;
-    }
 
 
     /**

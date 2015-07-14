@@ -3,7 +3,6 @@
   namespace ReRoute\Tests;
 
   use ReRoute\Route\CommonRoute;
-  use ReRoute\RouteMatch;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
 
@@ -91,6 +90,5 @@
         ['http://abc.example.com/item/1/?a=1', 'get', ['subdomain' => 'abc', 'itemId' => 1]],
       ];
     }
-
 
   }
