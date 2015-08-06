@@ -173,7 +173,7 @@
     /**
      * @param RequestContext $requestContext
      *
-     * @return RouteMatch
+     * @return RouteMatch|bool
      */
     protected function match(RequestContext $requestContext) {
       return $this->successfulMatch();
@@ -183,7 +183,7 @@
     /**
      * @param RequestContext $requestContext
      *
-     * @return bool|RouteMatch
+     * @return RouteMatch|bool
      */
     public function doMatch(RequestContext $requestContext) {
       $thisMatch = $this->match($requestContext);

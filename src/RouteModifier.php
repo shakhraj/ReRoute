@@ -42,7 +42,8 @@
 
     /**
      * @param RequestContext $requestContext
-     * @return RouteMatch
+     *
+     * @return RouteMatch|bool
      */
     public function doMatch(RequestContext $requestContext) {
       return $this->match($requestContext);
