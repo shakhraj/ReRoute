@@ -261,7 +261,9 @@
       if (!empty($this->parentRoute)) {
         $this->parentRoute->build($url, $urlBuilder);
       }
-      foreach ($this->modifiers as $modifier) {
+      /** @var RouteModifier[] $reverseModifiers */
+      $reverseModifiers = array_reverse($this->modifiers);
+      foreach ($reverseModifiers as $modifier) {
         $modifier->build($url, $urlBuilder);
       }
     }
