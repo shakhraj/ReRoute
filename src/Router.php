@@ -2,13 +2,15 @@
 
   namespace ReRoute;
 
+  use ReRoute\Exceptions\MatchNotFoundException;
+  use ReRoute\Route\AbstractRouteCollection;
+
 
   /**
    *
    * @package ReRoute
    */
-  class Router extends Route {
-
+  class Router extends AbstractRouteCollection {
 
     /**
      * @var RouteMatch
@@ -44,13 +46,14 @@
      * @param string $methodOverride
      */
     public function setMethodOverride($methodOverride) {
-      $this->methodOverride = (string)$methodOverride;
+      $this->methodOverride = (string) $methodOverride;
     }
 
 
     /**
      * @param RequestContext $requestContext
-     * @return bool|RouteMatch
+     * @return RouteMatch
+     * @throws MatchNotFoundException
      */
     public function doMatch(RequestContext $requestContext) {
       if (!empty($this->methodOverride)) {
@@ -58,24 +61,30 @@
           $requestContext->setMethod($method);
         }
       }
-      $routeMatch = parent::doMatch($requestContext);
-      if (!empty($routeMatch)) {
-        $this->routeMatchContext = $routeMatch;
+      foreach ($this->getRoutes() as $routeId => $route) {
+        $routeMatch = $route->doMatch($requestContext);
+        if ($routeMatch instanceof RouteMatch) {
+          break;
+        }
       }
+      if (empty($routeMatch) or !($routeMatch instanceof RouteMatch)) {
+        throw new MatchNotFoundException('Route not found for: ' . $requestContext->getPath());
+      }
+
       return $routeMatch;
     }
 
 
     /**
-     * @param $routeId
+     * @param string $routeId
      * @return UrlBuilder
      */
     public function getUrl($routeId) {
-      $urlBuilder = parent::getUrl($routeId);
-      if (!empty($this->routeMatchContext)) {
-        $urlBuilder->setDefaultParameters($this->routeMatchContext->getParameters());
+      $route = $this->getRoute($routeId);
+      if (empty($route)) {
+        throw new \InvalidArgumentException('No route: ' . $routeId);
       }
-      return $urlBuilder;
+      return $route->getUrl();
     }
 
 

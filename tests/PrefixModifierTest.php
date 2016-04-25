@@ -2,6 +2,9 @@
 
   namespace ReRoute\Tests;
 
+  /**
+   * @package ReRoute\Tests
+   */
   class PrefixModifierTest extends \PHPUnit_Framework_TestCase {
 
 
@@ -24,7 +27,7 @@
       ];
 
       foreach ($prefixes as $prefix => $tests) {
-        $modifier = (new \ReRoute\Modifier\PrefixModifier())
+        $modifier = (new \ReRoute\Modifier\PrefixModifier('prefix_modifier'))
           ->setPrefix($prefix);
         foreach ($tests as $url => $result) {
           $requestContext = Helper\RequestContextFactory::createFromUrl($url);

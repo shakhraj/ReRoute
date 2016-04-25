@@ -6,12 +6,18 @@
   use ReRoute\Tests\Helper\RequestContextFactory;
 
 
+  /**
+   * @package ReRoute\Tests
+   */
   class CommonRouteMatchTest extends \PHPUnit_Framework_TestCase {
 
 
+    /**
+     *
+     */
     public function testSimpleMatch() {
 
-      $route = (new CommonRoute())
+      $route = (new CommonRoute('simple_route'))
         ->setScheme('http')
         ->setPathTemplate('/item/')
         ->setMethod('post')
@@ -22,7 +28,7 @@
       $this->assertEquals('post', $route->getMethod());
       $this->assertEquals('example.com', $route->getHostTemplate()->getTemplateBuild());
 
-      $this->assertNotEMpty(
+      $this->assertNotEmpty(
         $route->doMatch(
           RequestContextFactory::createFromUrl('http://example.com/item/', 'post')
         )
@@ -58,7 +64,7 @@
      */
     public function testTemplateMatch($url, $method, $result) {
 
-      $route = (new CommonRoute())
+      $route = (new CommonRoute('template_route'))
         ->setMethod('get|post')
         ->setScheme('http')
         ->setPathTemplate('/item/{itemId:\d+}/')
@@ -77,6 +83,9 @@
     }
 
 
+    /**
+     * @return array
+     */
     public function templateRequestsProvider() {
       return [
         ['http://abc.example.com/item/1/', 'get', ['subdomain' => 'abc', 'itemId' => 1]],

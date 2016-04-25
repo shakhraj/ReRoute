@@ -7,6 +7,9 @@
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
+  /**
+   * @package ReRoute\Tests\Fixtures
+   */
   class LanguagePrefixRouteModifier extends RouteModifier {
 
 
@@ -49,11 +52,16 @@
      *
      * @return bool
      */
-    protected function match(RequestContext $requestContext) {
+    public function doMatch(RequestContext $requestContext) {
       if (!empty($this->languagesIds)) {
         if (preg_match('!^/(' . implode('|', $this->languagesIds) . ')(/.*)$!', $requestContext->getPath(), $match)) {
           $this->storeParam('lang', $match[1]);
-          $requestContext->setPath($match[2]);
+
+          $newPath = $match[2];
+          if (empty($newPath)) {
+            $newPath = '/';
+          }
+          $requestContext->setPath($newPath);
         } else {
           $this->storeParam('lang', $this->defaultLanguage);
         }
@@ -63,10 +71,7 @@
 
 
     /**
-     * @param Url $url
-     * @param UrlBuilder $urlBuilder
-     *
-     * @return UrlBuilder
+     * @inheritdoc
      */
     public function build(Url $url, UrlBuilder $urlBuilder) {
       $lang = $urlBuilder->useParameter('lang');
@@ -75,8 +80,6 @@
           $url->setPath('/' . $lang . $url->getPath());
         }
       }
-      return parent::build($url, $urlBuilder);
     }
-
 
   }

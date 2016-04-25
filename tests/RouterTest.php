@@ -7,9 +7,15 @@
   use ReRoute\Route;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
+  /**
+   * @package ReRoute\Tests
+   */
   class RouterTest extends \PHPUnit_Framework_TestCase {
 
 
+    /**
+     *
+     */
     public function testAddingRoutes() {
 
       $router = new Router();
@@ -17,8 +23,7 @@
       $this->assertCount(0, $router->getRoutes());
 
       $router->addRoute(
-        'homepage',
-        new CommonRoute(),
+        new CommonRoute('homepage'),
         'homepage'
       );
 
@@ -30,6 +35,9 @@
     }
 
 
+    /**
+     *
+     */
     public function testGettingRoutes() {
 
       $router = new Router();
@@ -37,8 +45,7 @@
       $this->assertCount(0, $router->getRoutes());
 
       $router->addRoute(
-        'homepage',
-        new CommonRoute(),
+        new CommonRoute('homepage'),
         'homepage'
       );
 
@@ -52,12 +59,14 @@
     }
 
 
+    /**
+     * @throws \ReRoute\Exceptions\MatchNotFoundException
+     */
     public function testIsMatch() {
 
       $router = new Router();
       $router->addRoute(
-        'homepage',
-        (new CommonRoute())
+        (new CommonRoute('homepage'))
           ->setScheme('http')
           ->setPathTemplate('/')
           ->setHostTemplate('example.com'),
@@ -69,39 +78,55 @@
       );
       $this->assertNotEmpty($routeMatch);
       $this->assertEquals('homepage', $routeMatch->getRouteId());
-
-      $routeMatch = $router->doMatch(
-        RequestContextFactory::createFromUrl('http://example.com/somepath/')
-      );
-      $this->assertEmpty($routeMatch);
-
-      $routeMatch = $router->doMatch(
-        RequestContextFactory::createFromUrl('http://example2.com/')
-      );
-      $this->assertEmpty($routeMatch);
-
-      $routeMatch = $router->doMatch(
-        RequestContextFactory::createFromUrl('https://example.com/')
-      );
-      $this->assertEmpty($routeMatch);
-
     }
 
 
+    /**
+     * @param $url
+     * @dataProvider outOfMatchUrlProvider
+     * @expectedException \ReRoute\Exceptions\MatchNotFoundException
+     */
+    public function testOutOfMatch($url) {
+      $router = new Router();
+      $router->addRoute(
+        (new CommonRoute('homepage'))
+          ->setScheme('http')
+          ->setPathTemplate('/')
+          ->setHostTemplate('example.com'),
+        'homepageResult'
+      );
+
+      $router->doMatch(RequestContextFactory::createFromUrl($url));
+    }
+
+
+    /**
+     * @return array
+     */
+    public function outOfMatchUrlProvider() {
+      return [
+        ['http://example.com/somepath/'],
+        ['http://example2.com/'],
+        ['https://example.com/'],
+      ];
+    }
+
+
+    /**
+     *
+     */
     public function testBuildingUrls() {
 
       $router = new Router();
       $router->addRoute(
-        'homepage',
-        (new CommonRoute())
+        (new CommonRoute('homepage'))
           ->setScheme('http')
           ->setPathTemplate('/')
           ->setHostTemplate('example.com')
       );
 
       $router->addRoute(
-        'items',
-        (new CommonRoute())
+        (new CommonRoute('items'))
           ->setScheme('http')
           ->setPathTemplate('/items/{itemId}/')
           ->setHostTemplate('example.com')
@@ -109,8 +134,6 @@
 
       $this->assertEquals('http://example.com/', $router->getUrl('homepage')->assemble());
       $this->assertEquals('http://example.com/items/1/', $router->getUrl('items')->set('itemId', 1)->assemble());
-
     }
-
 
   }

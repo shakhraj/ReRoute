@@ -6,30 +6,35 @@
   use ReRoute\Router;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
+  /**
+   * @package ReRoute\Tests
+   */
   class RouterMethodOverrideTest extends \PHPUnit_Framework_TestCase {
 
-
-    public function testMethodOverride() {
-
+    /**
+     * @return Router
+     */
+    protected function getRouter() {
       $router = new Router();
       $router->setMethodOverride('_method');
       $router->addRoute(
-        'item',
-        (new CommonRoute())
+        (new CommonRoute('item'))
           ->setMethod('delete')
           ->setPathTemplate('/item/'),
         'result'
       );
 
+      return $router;
+    }
+
+
+    public function testMethodOverride() {
+      $router = $this->getRouter();
+
       $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example.com/item/', 'delete')
       );
       $this->assertNotEmpty($routeMatch, "Route with correct method should match");
-
-      $routeMatch = $router->doMatch(
-        RequestContextFactory::createFromUrl('http://example.com/item/', 'get')
-      );
-      $this->assertEmpty($routeMatch);
 
       $routeMatch = $router->doMatch(
         RequestContextFactory::createFromUrl('http://example.com/item/?_method=delete')
@@ -41,6 +46,16 @@
       );
       $this->assertNotEmpty($routeMatch, "Route with incorrect rewrited method should not match");
 
+    }
+
+
+    /**
+     * @expectedException \ReRoute\Exceptions\MatchNotFoundException
+     */
+    public function testFailMethod() {
+      $this->getRouter()->doMatch(
+        RequestContextFactory::createFromUrl('http://example.com/item/', 'get')
+      );
     }
 
 

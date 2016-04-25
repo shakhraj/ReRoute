@@ -10,6 +10,9 @@
   use ReRoute\Tests\Fixtures\MobileHostRouteModifier;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
+  /**
+   * @package ReRoute\Tests
+   */
   class FullRouterTest extends \PHPUnit_Framework_TestCase {
 
 
@@ -20,11 +23,10 @@
 
       $router = new Router();
 
-      $siteRoutes = new Route();
+      $siteRoutes = new Route('site');
 
       $siteRoutes->addRoute(
-        'homepage',
-        (new CommonRoute())
+        (new CommonRoute('homepage'))
           ->setScheme('http')
           ->setPathTemplate('/')
           ->setHostTemplate('example.com'),
@@ -32,8 +34,7 @@
       );
 
       $siteRoutes->addRoute(
-        'items',
-        (new CommonRoute())
+        (new CommonRoute('items'))
           ->setScheme('http')
           ->setPathTemplate('/items/{itemId}/')
           ->setHostTemplate('example.com'),
@@ -41,29 +42,34 @@
       );
 
       $siteRoutes->addRoute(
-        'cats',
-        (new CommonRoute())
+        (new CommonRoute('cats'))
           ->setScheme('http')
           ->setPathTemplate('/cats/{catId:\d+:}/')
           ->setHostTemplate('example.com'),
         'catsResult'
       );
 
+      $siteMyRouteGroup = new CommonRoute('my');
+      $siteMyRouteGroup->setPathTemplate('/my/');
+      $siteMyRouteGroup->addRoute((new CommonRoute('orders'))->setPathTemplate('/my/orders'));
+
+      $siteRoutes->addRoute($siteMyRouteGroup);
+
       $siteRoutes->addModifier(
-        (new LanguagePrefixRouteModifier())
+        (new LanguagePrefixRouteModifier('langModifier'))
           ->setLanguagesIds(['en', 'de', 'fr'])
           ->setDefaultLanguage('en')
       );
 
       $siteRoutes->addModifier(
-        new MobileHostRouteModifier()
+        new MobileHostRouteModifier('mobileHostModifier')
       );
 
-      $router->addRoute('site', $siteRoutes);
+      $router->addRoute($siteRoutes);
 
-      $adminRoute = new AdminRoute();
+      $adminRoute = new AdminRoute('admin');
 
-      $router->addRoute('admin', $adminRoute);
+      $router->addRoute($adminRoute);
 
       return $router;
 
@@ -101,15 +107,29 @@
       $this->assertTrue($match->get('isMobile'));
       $this->assertEquals('321', $match->get('catId'));
 
-      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://m123.example.com/'));
-      $this->assertEmpty($match);
+    }
 
-      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://example.com/it/items/123/'));
-      $this->assertEmpty($match);
 
-      $match = $router->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/unknownpage/'));
-      $this->assertEmpty($match);
+    /**
+     * @dataProvider emptyMatchUrlProvider
+     * @expectedException \ReRoute\Exceptions\MatchNotFoundException
+     * @param string $url
+     * @throws \ReRoute\Exceptions\MatchNotFoundException
+     */
+    public function testEmptyMatch($url) {
+      $this->getRouter()->doMatch(RequestContextFactory::createFromUrl($url));
+    }
 
+
+    /**
+     * @return array
+     */
+    public function emptyMatchUrlProvider() {
+      return [
+        ['http://m123.example.com/'],
+        ['http://example.com/it/items/123/'],
+        ['http://m.example.com/unknownpage/'],
+      ];
     }
 
 
@@ -221,7 +241,7 @@
 
       $this->assertEquals(
         'http://m.example.com/fr/',
-        (string)$router->getUrl('site:homepage')->set('isMobile', true)->set('lang', 'fr')
+        (string) $router->getUrl('site:homepage')->set('isMobile', true)->set('lang', 'fr')
       );
 
     }
@@ -288,9 +308,15 @@
         $url->assemble()
       );
 
-
     }
 
 
+    public function testGetSubRoutes() {
+      $router = $this->getRouter();
 
+      $this->assertNotEmpty($router->getRoute('site'));
+      $this->assertNotEmpty($router->getRoute('site:my'));
+      $this->assertNotEmpty($router->getRoute('site:my:orders'));
+    }
+    
   }

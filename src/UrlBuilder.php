@@ -4,6 +4,9 @@
   namespace ReRoute;
 
 
+  /**
+   * @package ReRoute
+   */
   class UrlBuilder {
 
 
@@ -147,6 +150,7 @@
       return null;
     }
 
+
     /**
      * @return array
      */
@@ -173,16 +177,6 @@
         $url->setParameter($param, $value);
       }
       return $url->getUrl();
-    }
-
-
-    /**
-     * @param string $routeId
-     *
-     * @return UrlBuilder
-     */
-    public function getUrl($routeId) {
-      return $this->route->getUrl($routeId);
     }
 
 

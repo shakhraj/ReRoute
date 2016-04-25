@@ -6,13 +6,13 @@
    *
    * @package ReRoute
    */
-  abstract class RouteModifier extends Route {
+  abstract class RouteModifier implements RouteInterface {
 
 
     /**
      * @var array
      */
-    public $storedParams = [];
+    protected $storedParams = [];
 
 
     /**
@@ -25,40 +25,26 @@
 
 
     /**
+     * @return array
+     */
+    public function getStoredParams() {
+      return $this->storedParams;
+    }
+
+
+    /**
      * @param RouteMatch $routeMatch
      *
      * @return RouteMatch
      */
     public function successfulMatch(RouteMatch $routeMatch = null) {
       if (is_null($routeMatch)) {
-        $routeMatch = $this->createNewRouteMatch();
+        $routeMatch = new RouteMatch();
       }
       foreach ($this->storedParams as $param => $value) {
         $routeMatch->set($param, $value);
       }
       return $routeMatch;
     }
-
-
-    /**
-     * @param RequestContext $requestContext
-     *
-     * @return RouteMatch|bool
-     */
-    public function doMatch(RequestContext $requestContext) {
-      return $this->match($requestContext);
-    }
-
-
-    /**
-     * @param Url $url
-     * @param UrlBuilder $urlBuilder
-     *
-     * @return UrlBuilder
-     */
-    public function build(Url $url, UrlBuilder $urlBuilder) {
-
-    }
-
 
   }
