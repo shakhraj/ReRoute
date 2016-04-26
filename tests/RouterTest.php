@@ -4,7 +4,6 @@
 
   use ReRoute\Route\CommonRoute;
   use ReRoute\Router;
-  use ReRoute\Route;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
   /**
@@ -28,34 +27,23 @@
       );
 
       $this->assertCount(1, $router->getRoutes());
-
-      $this->assertTrue($router->routeExists('homepage'));
-      $this->assertFalse($router->routeExists('unknownroute'));
-
     }
 
 
     /**
      *
      */
-    public function testGettingRoutes() {
-
+    public function testGettingUrlBuilder() {
+      
       $router = new Router();
-
-      $this->assertCount(0, $router->getRoutes());
-
       $router->addRoute(
         new CommonRoute('homepage'),
-        'homepage'
+        'homepageResult'
       );
 
-      $route = $router->getRoute('homepage');
-      $this->assertInstanceOf('\\ReRoute\\Route', $route);
-
-      $route = $router->getUrl('homepage');
-      $this->assertInstanceOf('\\ReRoute\\UrlBuilder', $route);
-      $this->assertInstanceOf('\\ReRoute\\Route\\CommonRoute', $route->getRoute());
-
+      $urlBuilder = $router->getUrl('homepageResult');
+      $this->assertInstanceOf(\ReRoute\UrlBuilder::class, $urlBuilder);
+      $this->assertInstanceOf(\ReRoute\Route\CommonRoute::class, $urlBuilder->getRoute());
     }
 
 
@@ -122,18 +110,20 @@
         (new CommonRoute('homepage'))
           ->setScheme('http')
           ->setPathTemplate('/')
-          ->setHostTemplate('example.com')
+          ->setHostTemplate('example.com'),
+        'homepageResult'
       );
 
       $router->addRoute(
         (new CommonRoute('items'))
           ->setScheme('http')
           ->setPathTemplate('/items/{itemId}/')
-          ->setHostTemplate('example.com')
+          ->setHostTemplate('example.com'),
+        'itemsResult'
       );
 
-      $this->assertEquals('http://example.com/', $router->getUrl('homepage')->assemble());
-      $this->assertEquals('http://example.com/items/1/', $router->getUrl('items')->set('itemId', 1)->assemble());
+      $this->assertEquals('http://example.com/', $router->getUrl('homepageResult')->assemble());
+      $this->assertEquals('http://example.com/items/1/', $router->getUrl('itemsResult')->set('itemId', 1)->assemble());
     }
 
   }

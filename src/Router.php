@@ -4,6 +4,7 @@
 
   use ReRoute\Exceptions\MatchNotFoundException;
   use ReRoute\Route\AbstractRouteCollection;
+  use ReRoute\Route\Route;
 
 
   /**
@@ -13,24 +14,55 @@
   class Router extends AbstractRouteCollection {
 
     /**
-     * @var RouteMatch
-     */
-    protected $routeMatchContext;
-
-
-    /**
      * @var string
      */
     protected $methodOverride = '';
 
+    /**
+     * @var array
+     */
+    protected $resultToRouteMapping = [];
+
 
     /**
-     * @param string $routeId
-     *
-     * @return bool
+     * @inheritdoc
      */
-    public function routeExists($routeId) {
-      return array_key_exists($routeId, $this->routes);
+    public function addRoute(Route $route, $routeResult = null) {
+      parent::addRoute($route, $routeResult);
+
+      $this->addToRouteResultMapping([$route]);
+      return $this;
+    }
+
+
+    /**
+     * @param Route[] $routeList
+     */
+    private function addToRouteResultMapping($routeList) {
+      foreach ($routeList as $route) {
+        $subRouteList = $route->getRoutes();
+        if (!empty($subRouteList)) {
+          $this->addToRouteResultMapping($subRouteList);
+          continue;
+        }
+        $routeResult = $route->getResult();
+        if (empty($routeResult)) {
+          throw new \InvalidArgumentException('Route result cant be empty!');
+        }
+        $this->resultToRouteMapping[$routeResult] = $route;
+      }
+    }
+
+
+    /**
+     * @param string $routeResult
+     * @return UrlBuilder
+     */
+    public function getUrl($routeResult) {
+      if (empty($this->resultToRouteMapping[$routeResult])) {
+        throw new \InvalidArgumentException('No route: ' . $routeResult);
+      }
+      return $this->resultToRouteMapping[$routeResult]->getUrl();
     }
 
 
@@ -61,7 +93,7 @@
           $requestContext->setMethod($method);
         }
       }
-      foreach ($this->getRoutes() as $routeId => $route) {
+      foreach ($this->getRoutes() as $route) {
         $routeMatch = $route->doMatch($requestContext);
         if ($routeMatch instanceof RouteMatch) {
           break;
@@ -72,19 +104,6 @@
       }
 
       return $routeMatch;
-    }
-
-
-    /**
-     * @param string $routeId
-     * @return UrlBuilder
-     */
-    public function getUrl($routeId) {
-      $route = $this->getRoute($routeId);
-      if (empty($route)) {
-        throw new \InvalidArgumentException('No route: ' . $routeId);
-      }
-      return $route->getUrl();
     }
 
 

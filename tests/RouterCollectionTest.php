@@ -2,7 +2,7 @@
 
   namespace ReRoute\Tests;
 
-  use ReRoute\Route;
+  use ReRoute\Route\Route;
   use ReRoute\Route\CommonRoute;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
@@ -31,16 +31,6 @@
       $routes = $collection->getRoutes();
 
       $this->assertCount(2, $routes);
-
-      $retrievedFooRoute = $collection->getRoute('foo');
-      $this->assertSame($fooRoute, $retrievedFooRoute);
-
-      $retrievedBarRoute = $collection->getRoute('bar');
-      $this->assertSame($barRoute, $retrievedBarRoute);
-
-      $missingRoute = $collection->getRoute('missing');
-      $this->assertNull($missingRoute);
-
     }
 
 

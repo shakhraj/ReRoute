@@ -5,7 +5,7 @@
   /**
    * @package ReRoute\Modifier
    */
-  class PrefixModifier extends \ReRoute\RouteModifier {
+  class PrefixModifier extends AbstractRouteModifier {
 
 
     /**

@@ -1,12 +1,15 @@
 <?php
 
-  namespace ReRoute;
+  namespace ReRoute\Modifier;
+
+  use ReRoute\Route\RouteInterface;
+  use ReRoute\RouteMatch;
 
   /**
    *
    * @package ReRoute
    */
-  abstract class RouteModifier implements RouteInterface {
+  abstract class AbstractRouteModifier implements RouteInterface {
 
 
     /**

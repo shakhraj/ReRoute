@@ -24,8 +24,8 @@
       $siteGroupRoute->addModifier((new LanguagePrefixRouteModifier())->setLanguagesIds(['ru', 'ua', 'en']));
       $siteGroupRoute->addModifier(new MobileHostRouteModifier());
 
-      $siteGroupRoute->addRoute((new CommonRoute('index'))->setPathTemplate('/'));
-      $siteGroupRoute->addRoute((new CommonRoute('list'))->setPathTemplate('/list/'));
+      $siteGroupRoute->addRoute((new CommonRoute('index'))->setPathTemplate('/'), 'siteIndexResult');
+      $siteGroupRoute->addRoute((new CommonRoute('list'))->setPathTemplate('/list/'), 'siteListResult');
 
       $router->addRoute($siteGroupRoute);
       return $router;
@@ -55,7 +55,7 @@
       $router = $this->getRouter();
 
       $router->doMatch(RequestContextFactory::createFromUrl('http://site.com/'));
-      $urlBuilder = $router->getUrl('site:index');
+      $urlBuilder = $router->getUrl('siteIndexResult');
 
       $this->assertEquals('http://site.com/', $urlBuilder->assemble());
 

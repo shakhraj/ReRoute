@@ -1,7 +1,12 @@
 <?php
 
 
-  namespace ReRoute;
+  namespace ReRoute\Route;
+
+  use ReRoute\RequestContext;
+  use ReRoute\RouteMatch;
+  use ReRoute\Url;
+  use ReRoute\UrlBuilder;
 
 
   /**

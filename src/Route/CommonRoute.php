@@ -3,7 +3,6 @@
   namespace ReRoute\Route;
 
   use ReRoute\RequestContext;
-  use ReRoute\Route;
   use ReRoute\RouteMatch;
   use ReRoute\Url;
   use ReRoute\UrlBuilder;

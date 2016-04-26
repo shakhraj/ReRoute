@@ -3,14 +3,14 @@
   namespace ReRoute\Tests\Fixtures;
 
   use ReRoute\RequestContext;
-  use ReRoute\RouteModifier;
+  use ReRoute\Modifier\AbstractRouteModifier;
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
   /**
    * @package ReRoute\Tests\Fixtures
    */
-  class MobileHostRouteModifier extends RouteModifier {
+  class MobileHostRouteModifier extends AbstractRouteModifier {
 
 
     /**

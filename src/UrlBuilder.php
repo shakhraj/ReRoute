@@ -3,6 +3,8 @@
 
   namespace ReRoute;
 
+  use ReRoute\Route\Route;
+
 
   /**
    * @package ReRoute

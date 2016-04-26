@@ -1,8 +1,12 @@
 <?php
 
-  namespace ReRoute;
+  namespace ReRoute\Route;
 
-  use ReRoute\Route\AbstractRouteCollection;
+  use ReRoute\Modifier\AbstractRouteModifier;
+  use ReRoute\RequestContext;
+  use ReRoute\RouteMatch;
+  use ReRoute\Url;
+  use ReRoute\UrlBuilder;
 
 
   /**
@@ -10,11 +14,6 @@
    * @package ReRoute
    */
   class Route extends AbstractRouteCollection implements RouteInterface {
-
-    /**
-     * Separator for searching sub route by full name (example: "site:my:index")
-     */
-    const ROUTE_ID_PARTS_SEPARATOR = ':';
 
 
     /**
@@ -30,13 +29,13 @@
 
 
     /**
-     * @var RouteModifier[]
+     * @var AbstractRouteModifier[]
      */
     protected $modifiers = [];
 
 
     /**
-     * @var mixed
+     * @var string|null
      */
     protected $result;
 
@@ -65,25 +64,6 @@
 
 
     /**
-     * @param string $routeId
-     *
-     * @return $this
-     */
-    public function setId($routeId) {
-      $this->id = $routeId;
-      return $this;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getId() {
-      return $this->id;
-    }
-
-
-    /**
      * @return mixed
      */
     public function getResult() {
@@ -92,10 +72,18 @@
 
 
     /**
-     * @param mixed $result
+     * @param string $result
+     * @return $this
      */
     public function setResult($result) {
+      if ($result === null) {
+        return $this;
+      }
+      if (!is_string($result)) {
+        throw new \InvalidArgumentException('Invalid result type. Expect string. Given "' . gettype($result) . '"');
+      }
       $this->result = $result;
+      return $this;
     }
 
 
@@ -135,11 +123,11 @@
 
 
     /**
-     * @param RouteModifier $modifier
+     * @param AbstractRouteModifier $modifier
      *
      * @return $this
      */
-    public function addModifier(RouteModifier $modifier) {
+    public function addModifier(AbstractRouteModifier $modifier) {
       $this->modifiers[] = $modifier;
       return $this;
     }
@@ -253,7 +241,7 @@
       if (empty($this->modifiers)) {
         return;
       }
-      /** @var RouteModifier[] $reverseModifiers */
+      /** @var AbstractRouteModifier[] $reverseModifiers */
       $reverseModifiers = array_reverse($this->modifiers);
       foreach ($reverseModifiers as $modifier) {
         $modifier->build($url, $urlBuilder);

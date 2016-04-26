@@ -3,19 +3,31 @@
   namespace ReRoute\Tests\Fixtures;
 
   use ReRoute\RequestContext;
-  use ReRoute\Route;
+  use ReRoute\Route\Route;
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
+  /**
+   * @package ReRoute\Tests\Fixtures
+   */
   class AdminRoute extends Route {
 
 
+    /**
+     * @var string
+     */
     private $defaultControllerGroup = 'index';
 
 
+    /**
+     * @var string
+     */
     private $defaultControllerItem = 'index';
 
 
+    /**
+     * @var string
+     */
     private $defaultAction = 'index';
 
 
