@@ -4,6 +4,9 @@
 
   use ReRoute\RequestContext;
 
+  /**
+   * @package ReRoute\Tests
+   */
   class RequestContextTest extends \PHPUnit_Framework_TestCase {
 
 
@@ -43,8 +46,6 @@
       $requestContext->setParameters(['a' => 1, 'b' => 2]);
       $this->assertEquals(['a' => 1, 'b' => 2], $requestContext->getParameters());
       $this->assertEquals('a=1&b=2', $requestContext->getQueryString());
-
-
 
     }
 

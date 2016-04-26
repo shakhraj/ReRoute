@@ -17,13 +17,13 @@
      */
     public function testAddingRoutes() {
 
-      $fooRoute = new CommonRoute('foo');
+      $fooRoute = new CommonRoute();
       $fooRoute->setPathTemplate('/foo/');
 
-      $barRoute = new CommonRoute('bar');
+      $barRoute = new CommonRoute();
       $barRoute->setPathTemplate('/bar/');
 
-      $collection = new Route('collection');
+      $collection = new Route();
       $collection
         ->addRoute($fooRoute)
         ->addRoute($barRoute);
@@ -39,9 +39,9 @@
      */
     public function testMatchingRoutes() {
 
-      $collection = (new Route('simple_collection'));
-      $collection->addRoute((new CommonRoute('foo'))->setPathTemplate('/foo/'));
-      $collection->addRoute((new CommonRoute('bar'))->setPathTemplate('/bar/')->setHostTemplate('bar.com'));
+      $collection = (new Route());
+      $collection->addRoute((new CommonRoute())->setPathTemplate('/foo/'));
+      $collection->addRoute((new CommonRoute())->setPathTemplate('/bar/')->setHostTemplate('bar.com'));
 
       $this->assertNotEmpty(
         $collection->doMatch(RequestContextFactory::createFromUrl('http://example.com/foo/'))

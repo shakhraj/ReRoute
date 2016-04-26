@@ -17,31 +17,9 @@
 
 
     /**
-     * @var string
-     */
-    private $routeId = null;
-
-
-    /**
      * @var array
      */
     private $parameters = [];
-
-
-    /**
-     * @return string
-     */
-    public function getRouteId() {
-      return $this->routeId;
-    }
-
-
-    /**
-     * @param string $routeId
-     */
-    public function setRouteId($routeId) {
-      $this->routeId = $routeId;
-    }
 
 
     /**

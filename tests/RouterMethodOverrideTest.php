@@ -18,7 +18,7 @@
       $router = new Router();
       $router->setMethodOverride('_method');
       $router->addRoute(
-        (new CommonRoute('item'))
+        (new CommonRoute())
           ->setMethod('delete')
           ->setPathTemplate('/item/'),
         'result'

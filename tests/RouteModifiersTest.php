@@ -20,12 +20,12 @@
     protected function getRouter() {
       $router = new Router();
 
-      $siteGroupRoute = (new CommonRoute('site'))->setHostTemplate('site.com');
+      $siteGroupRoute = (new CommonRoute())->setHostTemplate('site.com');
       $siteGroupRoute->addModifier((new LanguagePrefixRouteModifier())->setLanguagesIds(['ru', 'ua', 'en']));
       $siteGroupRoute->addModifier(new MobileHostRouteModifier());
 
-      $siteGroupRoute->addRoute((new CommonRoute('index'))->setPathTemplate('/'), 'siteIndexResult');
-      $siteGroupRoute->addRoute((new CommonRoute('list'))->setPathTemplate('/list/'), 'siteListResult');
+      $siteGroupRoute->addRoute((new CommonRoute())->setPathTemplate('/'), 'siteIndexResult');
+      $siteGroupRoute->addRoute((new CommonRoute())->setPathTemplate('/list/'), 'siteListResult');
 
       $router->addRoute($siteGroupRoute);
       return $router;

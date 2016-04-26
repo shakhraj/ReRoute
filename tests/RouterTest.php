@@ -22,7 +22,7 @@
       $this->assertCount(0, $router->getRoutes());
 
       $router->addRoute(
-        new CommonRoute('homepage'),
+        new CommonRoute(),
         'homepage'
       );
 
@@ -34,10 +34,10 @@
      *
      */
     public function testGettingUrlBuilder() {
-      
+
       $router = new Router();
       $router->addRoute(
-        new CommonRoute('homepage'),
+        new CommonRoute(),
         'homepageResult'
       );
 
@@ -54,7 +54,7 @@
 
       $router = new Router();
       $router->addRoute(
-        (new CommonRoute('homepage'))
+        (new CommonRoute())
           ->setScheme('http')
           ->setPathTemplate('/')
           ->setHostTemplate('example.com'),
@@ -65,7 +65,6 @@
         RequestContextFactory::createFromUrl('http://example.com/?test=1')
       );
       $this->assertNotEmpty($routeMatch);
-      $this->assertEquals('homepage', $routeMatch->getRouteId());
     }
 
 
@@ -77,7 +76,7 @@
     public function testOutOfMatch($url) {
       $router = new Router();
       $router->addRoute(
-        (new CommonRoute('homepage'))
+        (new CommonRoute())
           ->setScheme('http')
           ->setPathTemplate('/')
           ->setHostTemplate('example.com'),
@@ -107,7 +106,7 @@
 
       $router = new Router();
       $router->addRoute(
-        (new CommonRoute('homepage'))
+        (new CommonRoute())
           ->setScheme('http')
           ->setPathTemplate('/')
           ->setHostTemplate('example.com'),
@@ -115,7 +114,7 @@
       );
 
       $router->addRoute(
-        (new CommonRoute('items'))
+        (new CommonRoute())
           ->setScheme('http')
           ->setPathTemplate('/items/{itemId}/')
           ->setHostTemplate('example.com'),

@@ -27,7 +27,7 @@
       ];
 
       foreach ($prefixes as $prefix => $tests) {
-        $modifier = (new \ReRoute\Modifier\PrefixModifier('prefix_modifier'))
+        $modifier = (new \ReRoute\Modifier\PrefixModifier())
           ->setPrefix($prefix);
         foreach ($tests as $url => $result) {
           $requestContext = Helper\RequestContextFactory::createFromUrl($url);

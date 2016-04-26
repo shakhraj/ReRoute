@@ -9,10 +9,8 @@
 
       $routeMatch = new \ReRoute\RouteMatch();
 
-      $routeMatch->setRouteId('homepage');
       $routeMatch->setRouteResult('homepageResult');
 
-      $this->assertEquals('homepage', $routeMatch->getRouteId());
       $this->assertEquals('homepageResult', $routeMatch->getRouteResult());
 
       $routeMatch->set('param1', 1);

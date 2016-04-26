@@ -17,7 +17,7 @@
      */
     public function testSimpleMatch() {
 
-      $route = (new CommonRoute('simple_route'))
+      $route = (new CommonRoute())
         ->setScheme('http')
         ->setPathTemplate('/item/')
         ->setMethod('post')
@@ -64,7 +64,7 @@
      */
     public function testTemplateMatch($url, $method, $result) {
 
-      $route = (new CommonRoute('template_route'))
+      $route = (new CommonRoute())
         ->setMethod('get|post')
         ->setScheme('http')
         ->setPathTemplate('/item/{itemId:\d+}/')

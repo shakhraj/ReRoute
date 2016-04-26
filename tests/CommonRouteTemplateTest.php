@@ -4,9 +4,15 @@
 
   use ReRoute\Route\CommonRouteTemplate;
 
+  /**
+   * @package ReRoute\Tests
+   */
   class CommonRouteTemplateTest extends \PHPUnit_Framework_TestCase {
 
 
+    /**
+     *
+     */
     public function testMatch() {
 
       $template = new CommonRouteTemplate('/show-symbol/{symbol:[\{|\}]}/');
@@ -25,6 +31,10 @@
 
     }
 
+
+    /**
+     *
+     */
     public function testQuotedBracketsRegexp() {
 
       $template = new CommonRouteTemplate('/{i:\{}/');
@@ -35,6 +45,10 @@
 
     }
 
+
+    /**
+     *
+     */
     public function testEmptyDefaultValue() {
 
       $template = new CommonRouteTemplate('/page/{id:\d+:}/');
@@ -45,6 +59,10 @@
 
     }
 
+
+    /**
+     *
+     */
     public function testDefaultValue() {
       $template = new CommonRouteTemplate('/list/{page:\d+:1}/');
       $result = $template->match('/list/', $data);
@@ -71,6 +89,9 @@
     }
 
 
+    /**
+     *
+     */
     public function testBuildWithDefaultParameter() {
       $template = new CommonRouteTemplate('/list/{page:\d*:1}/');
       $this->assertEmpty($template->match('/list/-1/'));
@@ -103,6 +124,9 @@
     }
 
 
+    /**
+     *
+     */
     public function testMatchWithoutParameters() {
       $template = new CommonRouteTemplate('/list/');
       $parameters = $template->getParameters();
@@ -119,12 +143,18 @@
     }
 
 
+    /**
+     *
+     */
     public function testQuotedTemplate() {
       $template = new CommonRouteTemplate('/users/\}');
       $this->assertEquals('/users/\}', $template->build());
     }
 
 
+    /**
+     *
+     */
     public function testCustomRegexp() {
       $template = new CommonRouteTemplate('/users/{id:[{}]+}');
 
@@ -132,6 +162,10 @@
       $this->assertEquals('/users/}', $template->build(['id' => '}']));
     }
 
+
+    /**
+     *
+     */
     public function testPathWithDotMatch() {
       $template = new CommonRouteTemplate('/page/contacts\.html');
       $this->assertTrue($template->match('/page/contacts.html'));
@@ -139,6 +173,9 @@
     }
 
 
+    /**
+     *
+     */
     public function testWithQuotedDefaultValueDefinition() {
 
       $template = new CommonRouteTemplate('/list/{page:\d*:1}/');
@@ -164,6 +201,9 @@
     }
 
 
+    /**
+     *
+     */
     public function testGetUsedParameters() {
       $template = new CommonRouteTemplate('/list/{page:\d*:1}/{name:[a-z]+}/');
 
@@ -184,6 +224,7 @@
       new CommonRouteTemplate('/list/{page:::1}');
     }
 
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -192,6 +233,7 @@
 
     }
 
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -199,12 +241,14 @@
       new CommonRouteTemplate('/users/{--name}');
     }
 
+
     /**
      * @expectedException \InvalidArgumentException
      */
     public function testWithInvalidTemplateFormat() {
       new CommonRouteTemplate('/users/{id:}}');
     }
+
 
     /**
      * @expectedException \InvalidArgumentException
@@ -230,6 +274,7 @@
       $template->build();
     }
 
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -237,6 +282,7 @@
       $template = new CommonRouteTemplate('/list/{page:\d*:1}/{name:[a-z]+}/');
       $template->build(array('name' => 123));
     }
+
 
     /**
      * @expectedException \InvalidArgumentException

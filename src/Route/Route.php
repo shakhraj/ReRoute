@@ -41,20 +41,6 @@
 
 
     /**
-     * @var string
-     */
-    protected $id;
-
-
-    /**
-     * @param string $id Route Identifier
-     */
-    public function __construct($id) {
-      $this->id = $id;
-    }
-
-
-    /**
      * @inheritdoc
      */
     public function addRoute(Route $route, $routeResult = null) {
@@ -160,7 +146,6 @@
     public function successfulMatch(RouteMatch $routeMatch = null) {
       if (is_null($routeMatch)) {
         $routeMatch = new RouteMatch();
-        $routeMatch->setRouteId($this->id);
         $routeMatch->setRouteResult($this->getResult());
       }
       foreach ($this->storedParams as $param => $value) {

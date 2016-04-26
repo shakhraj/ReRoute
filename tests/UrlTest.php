@@ -3,6 +3,9 @@
   namespace ReRoute\Tests;
 
 
+  /**
+   * @package ReRoute\Tests
+   */
   class UrlTest extends \PHPUnit_Framework_TestCase {
 
 

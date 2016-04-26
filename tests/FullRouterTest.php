@@ -23,10 +23,10 @@
 
       $router = new Router();
 
-      $siteRoutes = new Route('site');
+      $siteRoutes = new Route();
 
       $siteRoutes->addRoute(
-        (new CommonRoute('homepage'))
+        (new CommonRoute())
           ->setScheme('http')
           ->setPathTemplate('/')
           ->setHostTemplate('example.com'),
@@ -34,7 +34,7 @@
       );
 
       $siteRoutes->addRoute(
-        (new CommonRoute('items'))
+        (new CommonRoute())
           ->setScheme('http')
           ->setPathTemplate('/items/{itemId}/')
           ->setHostTemplate('example.com'),
@@ -42,16 +42,16 @@
       );
 
       $siteRoutes->addRoute(
-        (new CommonRoute('cats'))
+        (new CommonRoute())
           ->setScheme('http')
           ->setPathTemplate('/cats/{catId:\d+:}/')
           ->setHostTemplate('example.com'),
         'catsResult'
       );
 
-      $siteMyRouteGroup = new CommonRoute('my');
+      $siteMyRouteGroup = new CommonRoute();
       $siteMyRouteGroup->setPathTemplate('/my/');
-      $siteMyRouteGroup->addRoute((new CommonRoute('orders'))->setPathTemplate('/my/orders'), 'myOrdersResult');
+      $siteMyRouteGroup->addRoute((new CommonRoute())->setPathTemplate('/my/orders'), 'myOrdersResult');
 
       $siteRoutes->addRoute($siteMyRouteGroup);
 
@@ -67,7 +67,7 @@
 
       $router->addRoute($siteRoutes);
 
-      $adminRoute = new AdminRoute('admin');
+      $adminRoute = new AdminRoute();
 
       $router->addRoute($adminRoute, 'adminResult');
 
