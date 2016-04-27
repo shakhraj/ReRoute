@@ -2,9 +2,10 @@
 
   namespace ReRoute\Tests;
 
+  use ReRoute\Route\FinalRoute;
+  use ReRoute\Route\RouteGroup;
   use ReRoute\Router;
-  use ReRoute\Route\Route;
-  use ReRoute\Route\CommonRoute;
+  use ReRoute\Template\UrlTemplate;
   use ReRoute\Tests\Fixtures\AdminRoute;
   use ReRoute\Tests\Fixtures\LanguagePrefixRouteModifier;
   use ReRoute\Tests\Fixtures\MobileHostRouteModifier;
@@ -23,57 +24,23 @@
 
       $router = new Router();
 
-      $siteRoutes = new Route();
+      $siteRoutes = new RouteGroup(new UrlTemplate(['scheme' => 'http', 'host' => 'example.com']));
 
-      $siteRoutes->addRoute(
-        (new CommonRoute())
-          ->setScheme('http')
-          ->setPathTemplate('/')
-          ->setHostTemplate('example.com'),
-        'homepageResult'
-      );
-
-      $siteRoutes->addRoute(
-        (new CommonRoute())
-          ->setScheme('http')
-          ->setPathTemplate('/items/{itemId}/')
-          ->setHostTemplate('example.com'),
-        'itemsResult'
-      );
-
-      $siteRoutes->addRoute(
-        (new CommonRoute())
-          ->setScheme('http')
-          ->setPathTemplate('/cats/{catId:\d+:}/')
-          ->setHostTemplate('example.com'),
-        'catsResult'
-      );
-
-      $siteMyRouteGroup = new CommonRoute();
-      $siteMyRouteGroup->setPathTemplate('/my/');
-      $siteMyRouteGroup->addRoute((new CommonRoute())->setPathTemplate('/my/orders'), 'myOrdersResult');
-
-      $siteRoutes->addRoute($siteMyRouteGroup);
+      $siteRoutes->addRoute(new FinalRoute('homepageResult', new UrlTemplate(['path' => '/'])));
+      $siteRoutes->addRoute(new FinalRoute('itemsResult', new UrlTemplate(['path' => '/items/{itemId}/'])));
+      $siteRoutes->addRoute(new FinalRoute('catsResult', new UrlTemplate(['path' => '/cats/{catId:\d+:}/'])));
 
       $siteRoutes->addModifier(
         (new LanguagePrefixRouteModifier('langModifier'))
           ->setLanguagesIds(['en', 'de', 'fr'])
           ->setDefaultLanguage('en')
       );
-
-      $siteRoutes->addModifier(
-        new MobileHostRouteModifier('mobileHostModifier')
-      );
+      $siteRoutes->addModifier(new MobileHostRouteModifier('mobileHostModifier'));
 
       $router->addRoute($siteRoutes);
+      $router->addRoute(new AdminRoute('adminResult'));
 
-      $adminRoute = new AdminRoute();
-
-      $router->addRoute($adminRoute, 'adminResult');
-
-      
       return $router;
-
     }
 
 
@@ -310,6 +277,6 @@
       );
 
     }
-    
-    
+
+
   }

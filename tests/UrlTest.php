@@ -11,7 +11,6 @@
 
     public function testUrl() {
 
-
       $url = new \ReRoute\Url();
 
       $this->assertEquals('localhost', $url->getHost());

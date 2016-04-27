@@ -2,8 +2,9 @@
 
   namespace ReRoute\Tests;
 
-  use ReRoute\Route\CommonRoute;
+  use ReRoute\Route\FinalRoute;
   use ReRoute\Router;
+  use ReRoute\Template\UrlTemplate;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
   /**
@@ -17,12 +18,10 @@
     protected function getRouter() {
       $router = new Router();
       $router->setMethodOverride('_method');
-      $router->addRoute(
-        (new CommonRoute())
-          ->setMethod('delete')
-          ->setPathTemplate('/item/'),
-        'result'
-      );
+      $router->addRoute(new FinalRoute('result', new UrlTemplate([
+        'method' => 'delete',
+        'path' => '/item/'
+      ])));
 
       return $router;
     }

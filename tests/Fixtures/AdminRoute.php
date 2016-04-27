@@ -3,14 +3,14 @@
   namespace ReRoute\Tests\Fixtures;
 
   use ReRoute\RequestContext;
-  use ReRoute\Route\Route;
+  use ReRoute\Route\FinalRoute;
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
   /**
    * @package ReRoute\Tests\Fixtures
    */
-  class AdminRoute extends Route {
+  class AdminRoute extends FinalRoute {
 
 
     /**
@@ -57,8 +57,7 @@
 
 
     /**
-     * @param Url $url
-     * @param UrlBuilder $urlBuilder
+     * @inheritdoc
      */
     public function build(Url $url, UrlBuilder $urlBuilder) {
 

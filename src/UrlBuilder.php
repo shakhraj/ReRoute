@@ -3,7 +3,7 @@
 
   namespace ReRoute;
 
-  use ReRoute\Route\Route;
+  use ReRoute\Route\AbstractRoute;
 
 
   /**
@@ -13,7 +13,7 @@
 
 
     /**
-     * @var Route
+     * @var AbstractRoute
      */
     private $route;
 
@@ -37,9 +37,9 @@
 
 
     /**
-     * @param Route $route
+     * @param AbstractRoute $route
      */
-    public function __construct(Route $route) {
+    public function __construct(AbstractRoute $route) {
       $this->route = $route;
     }
 
@@ -191,7 +191,7 @@
 
 
     /**
-     * @return Route
+     * @return AbstractRoute
      */
     public function getRoute() {
       return $this->route;

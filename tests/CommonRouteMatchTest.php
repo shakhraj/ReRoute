@@ -2,7 +2,8 @@
 
   namespace ReRoute\Tests;
 
-  use ReRoute\Route\CommonRoute;
+  use ReRoute\Route\FinalRoute;
+  use ReRoute\Template\UrlTemplate;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
 
@@ -17,16 +18,13 @@
      */
     public function testSimpleMatch() {
 
-      $route = (new CommonRoute())
-        ->setScheme('http')
-        ->setPathTemplate('/item/')
-        ->setMethod('post')
-        ->setHostTemplate('example.com');
-
-      $this->assertEquals('http', $route->getScheme());
-      $this->assertEquals('/item/', $route->getPathTemplate()->getTemplateBuild());
-      $this->assertEquals('post', $route->getMethod());
-      $this->assertEquals('example.com', $route->getHostTemplate()->getTemplateBuild());
+      $route = (new FinalRoute('testResult'));
+      $route->setUrlTemplate(new UrlTemplate([
+          'host' => 'example.com',
+          'path' => '/item/',
+          'scheme' => 'http',
+          'method' => 'post']
+      ));
 
       $this->assertNotEmpty(
         $route->doMatch(
@@ -64,11 +62,13 @@
      */
     public function testTemplateMatch($url, $method, $result) {
 
-      $route = (new CommonRoute())
-        ->setMethod('get|post')
-        ->setScheme('http')
-        ->setPathTemplate('/item/{itemId:\d+}/')
-        ->setHostTemplate('{subdomain:[a-z]{2,5}}.example.com');
+      $route = (new FinalRoute('testResult'));
+      $route->setUrlTemplate(new UrlTemplate([
+          'host' => '{subdomain:[a-z]{2,5}}.example.com',
+          'path' => '/item/{itemId:\d+}/',
+          'scheme' => 'http',
+          'method' => 'get|post']
+      ));
 
       $requestContext = RequestContextFactory::createFromUrl($url, $method);
 

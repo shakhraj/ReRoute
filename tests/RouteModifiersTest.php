@@ -3,8 +3,10 @@
   namespace ReRoute\Tests;
 
 
-  use ReRoute\Route\CommonRoute;
+  use ReRoute\Route\FinalRoute;
+  use ReRoute\Route\RouteGroup;
   use ReRoute\Router;
+  use ReRoute\Template\UrlTemplate;
   use ReRoute\Tests\Fixtures\LanguagePrefixRouteModifier;
   use ReRoute\Tests\Fixtures\MobileHostRouteModifier;
   use ReRoute\Tests\Helper\RequestContextFactory;
@@ -20,12 +22,12 @@
     protected function getRouter() {
       $router = new Router();
 
-      $siteGroupRoute = (new CommonRoute())->setHostTemplate('site.com');
+      $siteGroupRoute = new RouteGroup(new UrlTemplate(['host' => 'example.com']));
       $siteGroupRoute->addModifier((new LanguagePrefixRouteModifier())->setLanguagesIds(['ru', 'ua', 'en']));
       $siteGroupRoute->addModifier(new MobileHostRouteModifier());
 
-      $siteGroupRoute->addRoute((new CommonRoute())->setPathTemplate('/'), 'siteIndexResult');
-      $siteGroupRoute->addRoute((new CommonRoute())->setPathTemplate('/list/'), 'siteListResult');
+      $siteGroupRoute->addRoute(new FinalRoute('siteIndexResult', new UrlTemplate(['path' => '/'])));
+      $siteGroupRoute->addRoute(new FinalRoute('siteListResult', new UrlTemplate(['path' => '/list/'])));
 
       $router->addRoute($siteGroupRoute);
       return $router;
@@ -38,11 +40,11 @@
     public function testMatchedParams() {
       $router = $this->getRouter();
 
-      $routeMatch = $router->doMatch(RequestContextFactory::createFromUrl('http://site.com/'));
+      $routeMatch = $router->doMatch(RequestContextFactory::createFromUrl('http://example.com/'));
       $this->assertEmpty($routeMatch->get('lang'));
       $this->assertFalse($routeMatch->get('isMobile'));
 
-      $routeMatch = $router->doMatch(RequestContextFactory::createFromUrl('http://m.site.com/en/'));
+      $routeMatch = $router->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/en/'));
       $this->assertEquals('en', $routeMatch->get('lang'));
       $this->assertTrue($routeMatch->get('isMobile'));
     }
@@ -54,16 +56,16 @@
     public function testBuildWithModifiers() {
       $router = $this->getRouter();
 
-      $router->doMatch(RequestContextFactory::createFromUrl('http://site.com/'));
+      $router->doMatch(RequestContextFactory::createFromUrl('http://example.com/'));
       $urlBuilder = $router->getUrl('siteIndexResult');
 
-      $this->assertEquals('http://site.com/', $urlBuilder->assemble());
+      $this->assertEquals('http://example.com/', $urlBuilder->assemble());
 
       $urlBuilder->set('isMobile', true);
-      $this->assertEquals('http://m.site.com/', $urlBuilder->assemble());
+      $this->assertEquals('http://m.example.com/', $urlBuilder->assemble());
 
       $urlBuilder->set('lang', 'ua');
-      $this->assertEquals('http://m.site.com/ua/', $urlBuilder->assemble());
+      $this->assertEquals('http://m.example.com/ua/', $urlBuilder->assemble());
     }
 
   }

@@ -23,7 +23,11 @@
       $this->assertEquals('post', $requestContext->getMethod());
 
       $this->assertEquals('/', $requestContext->getPath());
+      $requestContext->setPath('/index/');
+      
       $this->assertEquals('http', $requestContext->getScheme());
+      $requestContext->setScheme('https');
+      $this->assertEquals('https', $requestContext->getScheme());
 
       $this->assertTrue($requestContext->hasParameter('a'));
       $this->assertEquals(1, $requestContext->getParameter('a'));

@@ -2,6 +2,9 @@
 
   namespace ReRoute\Tests;
 
+  /**
+   * @package ReRoute\Tests
+   */
   class RouteMatchTest extends \PHPUnit_Framework_TestCase {
 
 

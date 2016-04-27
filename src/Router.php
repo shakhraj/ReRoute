@@ -3,15 +3,17 @@
   namespace ReRoute;
 
   use ReRoute\Exceptions\MatchNotFoundException;
-  use ReRoute\Route\AbstractRouteCollection;
-  use ReRoute\Route\Route;
+  use ReRoute\Route\FinalRoute;
+  use ReRoute\Route\AbstractRoute;
+  use ReRoute\Route\RouteGroup;
+  use ReRoute\Route\RouteInterface;
 
 
   /**
    *
    * @package ReRoute
    */
-  class Router extends AbstractRouteCollection {
+  class Router {
 
     /**
      * @var string
@@ -23,34 +25,47 @@
      */
     protected $resultToRouteMapping = [];
 
+    /**
+     * @var AbstractRoute[]
+     */
+    protected $routes = [];
+
 
     /**
-     * @inheritdoc
+     * @param AbstractRoute $route
+     *
+     * @return $this
      */
-    public function addRoute(Route $route, $routeResult = null) {
-      parent::addRoute($route, $routeResult);
-
-      $this->addToRouteResultMapping([$route]);
+    public function addRoute(AbstractRoute $route) {
+      $this->addToRouteResultMapping($route);
+      $this->routes[] = $route;
       return $this;
     }
 
 
     /**
-     * @param Route[] $routeList
+     * @return AbstractRoute[]
      */
-    private function addToRouteResultMapping($routeList) {
-      foreach ($routeList as $route) {
-        $subRouteList = $route->getRoutes();
-        if (!empty($subRouteList)) {
-          $this->addToRouteResultMapping($subRouteList);
-          continue;
-        }
-        $routeResult = $route->getResult();
-        if (empty($routeResult)) {
-          throw new \InvalidArgumentException('Route result cant be empty!');
-        }
-        $this->resultToRouteMapping[$routeResult] = $route;
+    public function getRoutes() {
+      return $this->routes;
+    }
+
+
+    /**
+     * @param RouteInterface $route
+     */
+    private function addToRouteResultMapping(RouteInterface $route) {
+      if ($route instanceof FinalRoute) {
+        $this->resultToRouteMapping[$route->getResult()] = $route;
+        return;
       }
+      if ($route instanceof RouteGroup) {
+        foreach ($route->getRoutes() as $childRoute) {
+          $this->addToRouteResultMapping($childRoute);
+        }
+        return;
+      }
+      throw new \InvalidArgumentException('Route type should be "' . FinalRoute::class . '" or "' . RouteGroup::class . '"');
     }
 
 
