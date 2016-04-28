@@ -165,45 +165,7 @@
      * @return UrlBuilder
      */
     public function getUrl() {
-      $urlBuilder = $this->createUrlBuilder();
-      $urlBuilder = $this->storeParametersToUrlBuilder($urlBuilder);
-
-      return $urlBuilder;
-    }
-
-
-    /**
-     * @return UrlBuilder
-     */
-    public function createUrlBuilder() {
       return new UrlBuilder($this);
-    }
-
-
-    /**
-     * @param UrlBuilder $urlBuilder
-     * @return UrlBuilder
-     */
-    protected function storeParametersToUrlBuilder(UrlBuilder $urlBuilder) {
-      foreach ($this->getDefaultParameters() as $key => $value) {
-        $urlBuilder->setParameter($key, $value);
-      }
-      foreach ($this->getModifiers() as $modifier) {
-        foreach ($modifier->getDefaultParameters() as $key => $value) {
-          $urlBuilder->setParameter($key, $value);
-        }
-      }
-      if ($urlTemplate = $this->getUrlTemplate()) {
-        foreach ($urlTemplate->getDefaultParameters() as $key => $value) {
-          $urlBuilder->setParameter($key, $value);
-        }
-      }
-      $parentRoute = $this->getParentRoute();
-      while (!empty($parentRoute)) {
-        $parentRoute->storeParametersToUrlBuilder($urlBuilder);
-        $parentRoute = $parentRoute->getParentRoute();
-      }
-      return $urlBuilder;
     }
 
 

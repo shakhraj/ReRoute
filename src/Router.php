@@ -84,7 +84,7 @@
      * @return UrlBuilder
      */
     public function urlBuilder($routeResult) {
-      if (empty($this->resultToRouteMapping[$routeResult])) {
+      if (!isset($this->resultToRouteMapping[$routeResult])) {
         throw new \InvalidArgumentException('No route: ' . $routeResult);
       }
       return $this->resultToRouteMapping[$routeResult]->getUrl();

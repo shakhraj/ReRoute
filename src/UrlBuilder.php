@@ -35,6 +35,30 @@
      */
     public function __construct(AbstractRoute $route) {
       $this->route = $route;
+      $this->storeRouteParameters($route);
+    }
+
+
+    /**
+     * @param AbstractRoute $route
+     */
+    protected function storeRouteParameters(AbstractRoute $route) {
+      foreach ($route->getDefaultParameters() as $key => $value) {
+        $this->setParameter($key, $value);
+      }
+      foreach ($route->getModifiers() as $modifier) {
+        foreach ($modifier->getDefaultParameters() as $key => $value) {
+          $this->setParameter($key, $value);
+        }
+      }
+      if ($urlTemplate = $route->getUrlTemplate()) {
+        foreach ($urlTemplate->getDefaultParameters() as $key => $value) {
+          $this->setParameter($key, $value);
+        }
+      }
+      if ($parentRoute = $route->getParentRoute()) {
+        $this->storeRouteParameters($parentRoute);
+      }
     }
 
 
