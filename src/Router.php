@@ -2,33 +2,106 @@
 
   namespace ReRoute;
 
+  use ReRoute\Exceptions\MatchNotFoundException;
+  use ReRoute\Route\FinalRoute;
+  use ReRoute\Route\AbstractRoute;
+  use ReRoute\Route\RouteGroup;
+
 
   /**
    *
    * @package ReRoute
    */
-  class Router extends Route {
-
-
-    /**
-     * @var RouteMatch
-     */
-    protected $routeMatchContext;
-
+  class Router {
 
     /**
      * @var string
      */
     protected $methodOverride = '';
 
+    /**
+     * @var AbstractRoute[]
+     */
+    protected $resultToRouteMapping = [];
 
     /**
-     * @param string $routeId
-     *
-     * @return bool
+     * @var AbstractRoute[]
      */
-    public function routeExists($routeId) {
-      return array_key_exists($routeId, $this->routes);
+    protected $routes = [];
+
+
+    /**
+     * @param AbstractRoute $route
+     *
+     * @return $this
+     */
+    public function addRoute(AbstractRoute $route) {
+      $this->addToRouteResultMapping($route);
+      $this->routes[] = $route;
+      return $this;
+    }
+
+
+    /**
+     * @return AbstractRoute[]
+     */
+    public function getRoutes() {
+      return $this->routes;
+    }
+
+
+    /**
+     * @param AbstractRoute $route
+     */
+    private function addToRouteResultMapping(AbstractRoute $route) {
+      if ($route instanceof FinalRoute) {
+        $this->resultToRouteMapping[$route->getResult()] = $route;
+        return;
+      }
+      if ($route instanceof RouteGroup) {
+        foreach ($route->getRoutes() as $childRoute) {
+          $this->addToRouteResultMapping($childRoute);
+        }
+        return;
+      }
+      throw new \InvalidArgumentException('Route type should be "' . FinalRoute::class . '" or "' . RouteGroup::class . '"');
+    }
+
+
+    /**
+     * @param string $routeResult
+     * @return UrlBuilder
+     * @deprecated
+     * @see urlBuilder
+     */
+    public function getUrl($routeResult) {
+      return $this->urlBuilder($routeResult);
+    }
+
+
+    /**
+     * @param string $routeResult
+     * @return UrlBuilder
+     */
+    public function urlBuilder($routeResult) {
+      if (!isset($this->resultToRouteMapping[$routeResult])) {
+        throw new \InvalidArgumentException('No route: ' . $routeResult);
+      }
+      return $this->resultToRouteMapping[$routeResult]->getUrl();
+    }
+
+
+    /**
+     * @param string $routeResult
+     * @param array $options
+     * @return string
+     */
+    public function generateUrl($routeResult, array $options = []) {
+      $urlBuilder = $this->urlBuilder($routeResult);
+      foreach ($options as $key => $value) {
+        $urlBuilder->setParameter($key, $value);
+      }
+      return $urlBuilder->assemble();
     }
 
 
@@ -44,13 +117,14 @@
      * @param string $methodOverride
      */
     public function setMethodOverride($methodOverride) {
-      $this->methodOverride = (string)$methodOverride;
+      $this->methodOverride = (string) $methodOverride;
     }
 
 
     /**
      * @param RequestContext $requestContext
-     * @return bool|RouteMatch
+     * @return RouteMatch
+     * @throws MatchNotFoundException
      */
     public function doMatch(RequestContext $requestContext) {
       if (!empty($this->methodOverride)) {
@@ -58,24 +132,17 @@
           $requestContext->setMethod($method);
         }
       }
-      $routeMatch = parent::doMatch($requestContext);
-      if (!empty($routeMatch)) {
-        $this->routeMatchContext = $routeMatch;
+      foreach ($this->getRoutes() as $route) {
+        $routeMatch = $route->doMatch($requestContext);
+        if ($routeMatch instanceof RouteMatch) {
+          break;
+        }
       }
+      if (empty($routeMatch) or !($routeMatch instanceof RouteMatch)) {
+        throw new MatchNotFoundException('Route not found for: ' . $requestContext->getPath());
+      }
+
       return $routeMatch;
-    }
-
-
-    /**
-     * @param $routeId
-     * @return UrlBuilder
-     */
-    public function getUrl($routeId) {
-      $urlBuilder = parent::getUrl($routeId);
-      if (!empty($this->routeMatchContext)) {
-        $urlBuilder->setDefaultParameters($this->routeMatchContext->getParameters());
-      }
-      return $urlBuilder;
     }
 
 

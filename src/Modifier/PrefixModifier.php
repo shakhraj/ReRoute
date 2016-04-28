@@ -2,7 +2,10 @@
 
   namespace ReRoute\Modifier;
 
-  class PrefixModifier extends \ReRoute\RouteModifier {
+  /**
+   * @package ReRoute\Modifier
+   */
+  class PrefixModifier extends AbstractRouteModifier {
 
 
     /**
@@ -31,25 +34,32 @@
 
 
     /**
-     * @param \ReRoute\RequestContext $requestContext
-     *
-     * @return \ReRoute\RouteMatch|bool
+     * @inheritdoc
      */
-    protected function match(\ReRoute\RequestContext $requestContext) {
+    public function isMatched(\ReRoute\RequestContext $requestContext) {
       $prefix = $this->getPrefix();
       if (empty($prefix)) {
-        return $this->successfulMatch();
+        return true;
       }
       if (strpos($requestContext->getPath(), $prefix) === 0) {
-        $pathWithoutPrefix = (string)substr($requestContext->getPath(), strlen($prefix));
+        $pathWithoutPrefix = (string) substr($requestContext->getPath(), strlen($prefix));
         if (substr($pathWithoutPrefix, 0, 1) != '/') {
-          $pathWithoutPrefix = '/'.$pathWithoutPrefix;
+          $pathWithoutPrefix = '/' . $pathWithoutPrefix;
         }
         $requestContext->setPath($pathWithoutPrefix);
-        return $this->successfulMatch();
+        return true;
       }
       return false;
     }
 
 
+    /**
+     * @inheritdoc
+     */
+    public function build(\ReRoute\Url $url, \ReRoute\UrlBuilder $urlBuilder) {
+      $prefix = $this->getPrefix();
+      if (!empty($prefix)) {
+        $url->setPath($this->getPrefix() . $url->getPath());
+      }
+    }
   }

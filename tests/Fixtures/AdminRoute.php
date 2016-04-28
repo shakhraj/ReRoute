@@ -3,19 +3,31 @@
   namespace ReRoute\Tests\Fixtures;
 
   use ReRoute\RequestContext;
-  use ReRoute\Route;
+  use ReRoute\Route\FinalRoute;
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
-  class AdminRoute extends Route {
+  /**
+   * @package ReRoute\Tests\Fixtures
+   */
+  class AdminRoute extends FinalRoute {
 
 
+    /**
+     * @var string
+     */
     private $defaultControllerGroup = 'index';
 
 
+    /**
+     * @var string
+     */
     private $defaultControllerItem = 'index';
 
 
+    /**
+     * @var string
+     */
     private $defaultAction = 'index';
 
 
@@ -24,7 +36,7 @@
      *
      * @return bool
      */
-    protected function match(RequestContext $requestContext) {
+    protected function isMatched(RequestContext $requestContext) {
 
       if ($requestContext->getHost() != 'admin.example.com') {
         return false;
@@ -36,17 +48,14 @@
       $controllerItem = !empty($pathParts[1]) ? $pathParts[1] : $this->defaultControllerItem;
       $action = !empty($pathParts[2]) ? $pathParts[2] : $this->defaultAction;
 
-      $this->storeParam('controller', $controllerGroup . '/' . $controllerItem);
-      $this->storeParam('action', $action);
-
-      return $this->successfulMatch();
-
+      $this->storeParameter('controller', $controllerGroup . '/' . $controllerItem);
+      $this->storeParameter('action', $action);
+      return true;
     }
 
 
     /**
-     * @param Url $url
-     * @param UrlBuilder $urlBuilder
+     * @inheritdoc
      */
     public function build(Url $url, UrlBuilder $urlBuilder) {
 
@@ -77,9 +86,9 @@
 
 
     /**
-     * @return AdminUrlBuilder
+     * @inheritdoc
      */
-    public function createUrlBuilder() {
+    public function getUrl() {
       return new AdminUrlBuilder($this);
     }
 

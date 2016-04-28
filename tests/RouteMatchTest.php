@@ -2,17 +2,15 @@
 
   namespace ReRoute\Tests;
 
+  /**
+   * @package ReRoute\Tests
+   */
   class RouteMatchTest extends \PHPUnit_Framework_TestCase {
 
 
     public function testRouteMatch() {
 
-      $routeMatch = new \ReRoute\RouteMatch();
-
-      $routeMatch->setRouteId('homepage');
-      $routeMatch->setRouteResult('homepageResult');
-
-      $this->assertEquals('homepage', $routeMatch->getRouteId());
+      $routeMatch = new \ReRoute\RouteMatch('homepageResult');
       $this->assertEquals('homepageResult', $routeMatch->getRouteResult());
 
       $routeMatch->set('param1', 1);

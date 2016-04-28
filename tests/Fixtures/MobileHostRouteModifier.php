@@ -3,11 +3,14 @@
   namespace ReRoute\Tests\Fixtures;
 
   use ReRoute\RequestContext;
-  use ReRoute\RouteModifier;
+  use ReRoute\Modifier\AbstractRouteModifier;
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
-  class MobileHostRouteModifier extends RouteModifier {
+  /**
+   * @package ReRoute\Tests\Fixtures
+   */
+  class MobileHostRouteModifier extends AbstractRouteModifier {
 
 
     /**
@@ -15,28 +18,24 @@
      *
      * @return bool
      */
-    protected function match(RequestContext $requestContext) {
+    public function isMatched(RequestContext $requestContext) {
       if (preg_match('!^m\.(.+)$!', $requestContext->getHost(), $match)) {
         $requestContext->setHost($match[1]);
-        $this->storeParam('isMobile', true);
+        $this->storeDefaultParameter('isMobile', true);
       } else {
-        $this->storeParam('isMobile', false);
+        $this->storeDefaultParameter('isMobile', false);
       }
-      return $this->successfulMatch();
+      return true;
     }
 
 
     /**
-     * @param Url $url
-     * @param UrlBuilder $urlBuilder
-     *
-     * @return UrlBuilder
+     * @inheritdoc
      */
     public function build(Url $url, UrlBuilder $urlBuilder) {
       if ($urlBuilder->useParameter('isMobile')) {
         $url->setHost('m.' . $url->getHost());
       }
-      return parent::build($url, $urlBuilder);
     }
 
 

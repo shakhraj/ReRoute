@@ -4,15 +4,23 @@
 
   use ReRoute\UrlBuilder;
 
+  /**
+   * @package ReRoute\Tests\Fixtures
+   */
   class AdminUrlBuilder extends UrlBuilder {
 
+    /**
+     * @param string $method
+     * @param array $args
+     * @return UrlBuilder
+     */
     public function __call($method, $args) {
       foreach (['controllerGroup', 'controllerItem', 'action'] as $param) {
         if (!$this->hasParameter($param)) {
-          return $this->set($param, $method);
+          return $this->setParameter($param, $method);
         }
       }
-      return $this->set($method, !empty($args[0]) ? $args[0] : null);
+      return $this->setParameter($method, !empty($args[0]) ? $args[0] : null);
     }
 
   }

@@ -2,6 +2,8 @@
 
   namespace ReRoute;
 
+  use ReRoute\Route\AbstractRoute;
+
 
   /**
    *
@@ -17,30 +19,19 @@
 
 
     /**
-     * @var string
-     */
-    private $routeId = null;
-
-
-    /**
      * @var array
      */
     private $parameters = [];
 
 
     /**
-     * @return string
+     * @param $routeResult
      */
-    public function getRouteId() {
-      return $this->routeId;
-    }
-
-
-    /**
-     * @param string $routeId
-     */
-    public function setRouteId($routeId) {
-      $this->routeId = $routeId;
+    public function __construct($routeResult) {
+      if (!is_string($routeResult)) {
+        throw new \InvalidArgumentException('Invalid result type. Expect string. Given "' . gettype($routeResult) . '"');
+      }
+      $this->routeResult = $routeResult;
     }
 
 
@@ -49,14 +40,6 @@
      */
     public function getRouteResult() {
       return $this->routeResult;
-    }
-
-
-    /**
-     * @param mixed $routeResult
-     */
-    public function setRouteResult($routeResult) {
-      $this->routeResult = $routeResult;
     }
 
 

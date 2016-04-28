@@ -1,16 +1,12 @@
 <?php
 
-  namespace ReRoute\Route;
+  namespace ReRoute\Template;
+
 
   /**
-   *
-   * @package ReRoute\Route
+   * @package ReRoute\Template
    */
-  /**
-   *
-   * @package ReRoute\Route
-   */
-  class CommonRouteTemplate {
+  class Template {
 
     /**
      * @var string
@@ -174,6 +170,7 @@
 
     }
 
+
     /**
      * @param string $input
      * @param null $matchedParams
@@ -207,6 +204,7 @@
         return false;
       }
     }
+
 
     /**
      * @param array $parameters
@@ -250,6 +248,7 @@
 
     }
 
+
     /**
      * @return string
      */
@@ -257,12 +256,14 @@
       return $this->templateMatch;
     }
 
+
     /**
      * @return array
      */
     public function getParameters() {
       return $this->parameters;
     }
+
 
     /**
      * @return string

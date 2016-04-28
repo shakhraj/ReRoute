@@ -2,27 +2,31 @@
 
   namespace ReRoute\Tests;
 
-  use ReRoute\Route\CommonRoute;
+  use ReRoute\Route\FinalRoute;
+  use ReRoute\Template\UrlTemplate;
   use ReRoute\Tests\Helper\RequestContextFactory;
 
 
+  /**
+   * @package ReRoute\Tests
+   */
   class CommonRouteMatchTest extends \PHPUnit_Framework_TestCase {
 
 
+    /**
+     *
+     */
     public function testSimpleMatch() {
 
-      $route = (new CommonRoute())
-        ->setScheme('http')
-        ->setPathTemplate('/item/')
-        ->setMethod('post')
-        ->setHostTemplate('example.com');
+      $route = (new FinalRoute('testResult'));
+      $route->setUrlTemplate(new UrlTemplate([
+          'host' => 'example.com',
+          'path' => '/item/',
+          'scheme' => 'http',
+          'method' => 'post']
+      ));
 
-      $this->assertEquals('http', $route->getScheme());
-      $this->assertEquals('/item/', $route->getPathTemplate()->getTemplateBuild());
-      $this->assertEquals('post', $route->getMethod());
-      $this->assertEquals('example.com', $route->getHostTemplate()->getTemplateBuild());
-
-      $this->assertNotEMpty(
+      $this->assertNotEmpty(
         $route->doMatch(
           RequestContextFactory::createFromUrl('http://example.com/item/', 'post')
         )
@@ -58,11 +62,13 @@
      */
     public function testTemplateMatch($url, $method, $result) {
 
-      $route = (new CommonRoute())
-        ->setMethod('get|post')
-        ->setScheme('http')
-        ->setPathTemplate('/item/{itemId:\d+}/')
-        ->setHostTemplate('{subdomain:[a-z]{2,5}}.example.com');
+      $route = (new FinalRoute('testResult'));
+      $route->setUrlTemplate(new UrlTemplate([
+          'host' => '{subdomain:[a-z]{2,5}}.example.com',
+          'path' => '/item/{itemId:\d+}/',
+          'scheme' => 'http',
+          'method' => 'get|post']
+      ));
 
       $requestContext = RequestContextFactory::createFromUrl($url, $method);
 
@@ -77,6 +83,9 @@
     }
 
 
+    /**
+     * @return array
+     */
     public function templateRequestsProvider() {
       return [
         ['http://abc.example.com/item/1/', 'get', ['subdomain' => 'abc', 'itemId' => 1]],

@@ -3,11 +3,14 @@
   namespace ReRoute\Tests\Fixtures;
 
   use ReRoute\RequestContext;
-  use ReRoute\RouteModifier;
+  use ReRoute\Modifier\AbstractRouteModifier;
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
-  class LanguagePrefixRouteModifier extends RouteModifier {
+  /**
+   * @package ReRoute\Tests\Fixtures
+   */
+  class LanguagePrefixRouteModifier extends AbstractRouteModifier {
 
 
     /**
@@ -49,24 +52,26 @@
      *
      * @return bool
      */
-    protected function match(RequestContext $requestContext) {
+    public function isMatched(RequestContext $requestContext) {
       if (!empty($this->languagesIds)) {
         if (preg_match('!^/(' . implode('|', $this->languagesIds) . ')(/.*)$!', $requestContext->getPath(), $match)) {
-          $this->storeParam('lang', $match[1]);
-          $requestContext->setPath($match[2]);
+          $this->storeDefaultParameter('lang', $match[1]);
+
+          $newPath = $match[2];
+          if (empty($newPath)) {
+            $newPath = '/';
+          }
+          $requestContext->setPath($newPath);
         } else {
-          $this->storeParam('lang', $this->defaultLanguage);
+          $this->storeDefaultParameter('lang', $this->defaultLanguage);
         }
       }
-      return $this->successfulMatch();
+      return true;
     }
 
 
     /**
-     * @param Url $url
-     * @param UrlBuilder $urlBuilder
-     *
-     * @return UrlBuilder
+     * @inheritdoc
      */
     public function build(Url $url, UrlBuilder $urlBuilder) {
       $lang = $urlBuilder->useParameter('lang');
@@ -75,8 +80,6 @@
           $url->setPath('/' . $lang . $url->getPath());
         }
       }
-      return parent::build($url, $urlBuilder);
     }
-
 
   }

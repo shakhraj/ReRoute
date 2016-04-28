@@ -3,20 +3,19 @@
 
   namespace ReRoute;
 
+  use ReRoute\Route\AbstractRoute;
 
+
+  /**
+   * @package ReRoute
+   */
   class UrlBuilder {
 
 
     /**
-     * @var Route
+     * @var AbstractRoute
      */
     private $route;
-
-
-    /**
-     * @var array
-     */
-    protected $defaultParams = [];
 
 
     /**
@@ -32,46 +31,42 @@
 
 
     /**
-     * @param Route $route
+     * @param AbstractRoute $route
      */
-    public function __construct(Route $route) {
+    public function __construct(AbstractRoute $route) {
       $this->route = $route;
+      $this->storeRouteParameters($route);
     }
 
 
     /**
-     * @param string $param
-     * @param string $value
-     *
-     * @return $this
+     * @param AbstractRoute $route
      */
-    public function setParameter($param, $value) {
-      $this->params[$param] = $value;
-      unset($this->defaultParams[$param]);
-      return $this;
+    protected function storeRouteParameters(AbstractRoute $route) {
+      foreach ($route->getDefaultParameters() as $key => $value) {
+        $this->setParameter($key, $value);
+      }
+      foreach ($route->getModifiers() as $modifier) {
+        foreach ($modifier->getDefaultParameters() as $key => $value) {
+          $this->setParameter($key, $value);
+        }
+      }
+      if ($urlTemplate = $route->getUrlTemplate()) {
+        foreach ($urlTemplate->getDefaultParameters() as $key => $value) {
+          $this->setParameter($key, $value);
+        }
+      }
+      if ($parentRoute = $route->getParentRoute()) {
+        $this->storeRouteParameters($parentRoute);
+      }
     }
 
 
     /**
-     * @param string $param
-     * @param string $value
-     *
-     * @return UrlBuilder
+     * @return AbstractRoute
      */
-    public function set($param, $value) {
-      return $this->setParameter($param, $value);
-    }
-
-
-    /**
-     * @param string $param
-     *
-     * @return $this
-     */
-    public function removeParameter($param) {
-      unset($this->params[$param]);
-      unset($this->defaultParams[$param]);
-      return $this;
+    public function getRoute() {
+      return $this->route;
     }
 
 
@@ -86,38 +81,23 @@
 
 
     /**
-     * @param string[] $params
+     * @param string $param
      *
-     * @return $this
+     * @return string
      */
-    public function setDefaultParameters($params) {
-      foreach ($params as $param => $value) {
-        $this->setDefaultParameter($param, $value);
+    public function getParameter($param) {
+      if (!empty($this->params[$param])) {
+        return $this->params[$param];
       }
-      return $this;
+      return null;
     }
 
 
     /**
-     * @param string $param
-     * @param string $value
-     *
-     * @return $this
+     * @return array
      */
-    public function setDefaultParameter($param, $value) {
-      $this->defaultParams[$param] = $value;
-      return $this;
-    }
-
-
-    /**
-     * @param string $param
-     *
-     * @return $this
-     */
-    public function removeDefaultParameter($param) {
-      unset($this->defaultParams[$param]);
-      return $this;
+    public function getAllParameters() {
+      return $this->params;
     }
 
 
@@ -133,33 +113,34 @@
 
 
     /**
-     * @param string $param
-     *
-     * @return string
-     */
-    public function getParameter($param) {
-      if (!empty($this->params[$param])) {
-        return $this->params[$param];
-      }
-      if (!empty($this->defaultParams[$param])) {
-        return $this->defaultParams[$param];
-      }
-      return null;
-    }
-
-    /**
-     * @return array
-     */
-    public function getParameters() {
-      return array_merge($this->params, $this->defaultParams);
-    }
-
-
-    /**
      * @return string[]
      */
-    public function getUnusedParameters() {
+    private function getUnusedParameters() {
       return array_diff_key($this->params, $this->usedParams);
+    }
+
+
+    /**
+     * @param string $param
+     * @param string $value
+     *
+     * @return UrlBuilder
+     */
+    public function setParameter($param, $value) {
+      $this->params[$param] = $value;
+      return $this;
+    }
+
+
+    /**
+     * @param array $parameters
+     * @return $this
+     */
+    public function replaceParameters(array $parameters) {
+      foreach ($parameters as $param => $value) {
+        $this->setParameter($param, $value);
+      }
+      return $this;
     }
 
 
@@ -168,21 +149,11 @@
      */
     public function assemble() {
       $url = new Url();
-      $this->route->build($url, $this);
+      $this->getRoute()->build($url, $this);
       foreach ($this->getUnusedParameters() as $param => $value) {
         $url->setParameter($param, $value);
       }
       return $url->getUrl();
-    }
-
-
-    /**
-     * @param string $routeId
-     *
-     * @return UrlBuilder
-     */
-    public function getUrl($routeId) {
-      return $this->route->getUrl($routeId);
     }
 
 
@@ -192,14 +163,5 @@
     public function __toString() {
       return $this->assemble();
     }
-
-
-    /**
-     * @return Route
-     */
-    public function getRoute() {
-      return $this->route;
-    }
-
 
   }
