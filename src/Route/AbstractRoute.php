@@ -117,19 +117,17 @@
      * @param UrlBuilder $urlBuilder
      */
     public function buildModifiers(Url $url, UrlBuilder $urlBuilder) {
-      if ($parentRoute = $this->getParentRoute()) {
-        // building parent modifiers before own
-        $parentRoute->buildModifiers($url, $urlBuilder);
+      $modifiers = $this->getModifiers();
+      if (!empty($modifiers)) {
+        /** @var AbstractRouteModifier[] $modifiers */
+        $modifiers = array_reverse($modifiers);
+        foreach ($modifiers as $modifier) {
+          $modifier->build($url, $urlBuilder);
+        }
       }
 
-      $modifiers = $this->getModifiers();
-      if (empty($modifiers)) {
-        return;
-      }
-      /** @var AbstractRouteModifier[] $modifiers */
-      $modifiers = array_reverse($modifiers);
-      foreach ($modifiers as $modifier) {
-        $modifier->build($url, $urlBuilder);
+      if ($parentRoute = $this->getParentRoute()) {
+        $parentRoute->buildModifiers($url, $urlBuilder);
       }
     }
 
