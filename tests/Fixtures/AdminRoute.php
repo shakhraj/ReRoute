@@ -36,7 +36,7 @@
      *
      * @return bool
      */
-2    protected function isMatched(RequestContext $requestContext) {
+    protected function isMatched(RequestContext $requestContext) {
 
       if ($requestContext->getHost() != 'admin.example.com') {
         return false;
@@ -86,9 +86,9 @@
 
 
     /**
-     * @return AdminUrlBuilder
+     * @inheritdoc
      */
-    public function createUrlBuilder() {
+    public function getUrl() {
       return new AdminUrlBuilder($this);
     }
 
