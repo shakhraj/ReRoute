@@ -136,11 +136,20 @@
      * @param array $parameters
      * @return $this
      */
-    public function replaceParameters(array $parameters) {
+    public function setParameterList(array $parameters) {
       foreach ($parameters as $param => $value) {
         $this->setParameter($param, $value);
       }
       return $this;
+    }
+
+
+    /**
+     * @param string $param
+     */
+    public function removeParameter($param) {
+      unset($this->params[$param]);
+      unset($this->usedParams[$param]);
     }
 
 
