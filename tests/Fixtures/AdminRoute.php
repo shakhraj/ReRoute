@@ -36,7 +36,7 @@
      *
      * @return bool
      */
-    protected function match(RequestContext $requestContext) {
+2    protected function isMatched(RequestContext $requestContext) {
 
       if ($requestContext->getHost() != 'admin.example.com') {
         return false;
@@ -48,11 +48,9 @@
       $controllerItem = !empty($pathParts[1]) ? $pathParts[1] : $this->defaultControllerItem;
       $action = !empty($pathParts[2]) ? $pathParts[2] : $this->defaultAction;
 
-      $this->storeParam('controller', $controllerGroup . '/' . $controllerItem);
-      $this->storeParam('action', $action);
-
-      return $this->successfulMatch();
-
+      $this->storeParameter('controller', $controllerGroup . '/' . $controllerItem);
+      $this->storeParameter('action', $action);
+      return true;
     }
 
 

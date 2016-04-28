@@ -10,10 +10,7 @@
 
     public function testRouteMatch() {
 
-      $routeMatch = new \ReRoute\RouteMatch();
-
-      $routeMatch->setRouteResult('homepageResult');
-
+      $routeMatch = new \ReRoute\RouteMatch('homepageResult');
       $this->assertEquals('homepageResult', $routeMatch->getRouteResult());
 
       $routeMatch->set('param1', 1);

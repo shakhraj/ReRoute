@@ -18,14 +18,14 @@
      *
      * @return bool
      */
-    public function doMatch(RequestContext $requestContext) {
+    public function isMatched(RequestContext $requestContext) {
       if (preg_match('!^m\.(.+)$!', $requestContext->getHost(), $match)) {
         $requestContext->setHost($match[1]);
-        $this->storeParam('isMobile', true);
+        $this->storeDefaultParameter('isMobile', true);
       } else {
-        $this->storeParam('isMobile', false);
+        $this->storeDefaultParameter('isMobile', false);
       }
-      return $this->successfulMatch();
+      return true;
     }
 
 

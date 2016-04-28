@@ -52,10 +52,10 @@
      *
      * @return bool
      */
-    public function doMatch(RequestContext $requestContext) {
+    public function isMatched(RequestContext $requestContext) {
       if (!empty($this->languagesIds)) {
         if (preg_match('!^/(' . implode('|', $this->languagesIds) . ')(/.*)$!', $requestContext->getPath(), $match)) {
-          $this->storeParam('lang', $match[1]);
+          $this->storeDefaultParameter('lang', $match[1]);
 
           $newPath = $match[2];
           if (empty($newPath)) {
@@ -63,10 +63,10 @@
           }
           $requestContext->setPath($newPath);
         } else {
-          $this->storeParam('lang', $this->defaultLanguage);
+          $this->storeDefaultParameter('lang', $this->defaultLanguage);
         }
       }
-      return $this->successfulMatch();
+      return true;
     }
 
 

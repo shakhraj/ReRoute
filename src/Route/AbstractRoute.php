@@ -3,6 +3,7 @@
   namespace ReRoute\Route;
 
   use ReRoute\Modifier\AbstractRouteModifier;
+  use ReRoute\ParameterStore;
   use ReRoute\RequestContext;
   use ReRoute\RouteMatch;
   use ReRoute\Template\UrlTemplate;
@@ -14,13 +15,9 @@
    *
    * @package ReRoute
    */
-  abstract class AbstractRoute implements RouteInterface {
+  abstract class AbstractRoute {
 
-
-    /**
-     * @var array
-     */
-    protected $storedParams = [];
+    use ParameterStore;
 
     /**
      * @var AbstractRoute
@@ -56,7 +53,7 @@
       if ($this->urlTemplate == null) {
         return true;
       }
-      return $this->urlTemplate->doMatch($requestContext);
+      return $this->urlTemplate->isMatched($requestContext);
     }
 
 
@@ -70,35 +67,35 @@
         return true;
       }
       foreach ($this->modifiers as $modifier) {
-        $modifierResult = $modifier->doMatch($requestContext);
+        $modifierResult = $modifier->isMatched($requestContext);
         if (false === $modifierResult) {
           return false;
         }
-        $this->storeParamsFromMatch($modifierResult);
       }
       return true;
     }
 
 
     /**
-     * @inheritdoc
+     * @param RequestContext $requestContext
+     *
+     * @return RouteMatch|bool
      */
-    public function doMatch(RequestContext $requestContext) {
+    public abstract function doMatch(RequestContext $requestContext);
+
+
+    /**
+     * @param RequestContext $requestContext
+     * @return bool
+     */
+    protected function isMatched(RequestContext $requestContext) {
       if (false === $this->matchModifiers($requestContext)) {
         return false;
       }
       if (false === $this->matchUrlTemplate($requestContext)) {
         return false;
       }
-      return $this->match($requestContext);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    protected function match(RequestContext $requestContext) {
-      return $this->successfulMatch();
+      return true;
     }
 
 
@@ -139,23 +136,26 @@
 
     /**
      * @param RouteMatch $routeMatch
-     *
      * @return RouteMatch
      */
-    public function successfulMatch(RouteMatch $routeMatch = null) {
-      if (is_null($routeMatch)) {
-        $routeMatch = new RouteMatch();
-      }
-      if ($parentRoute = $this->getParentRoute()) {
-        $routeMatch = $parentRoute->successfulMatch($routeMatch);
-      }
-      foreach ($this->storedParams as $param => $value) {
-        $routeMatch->set($param, $value);
+    protected function storeParametersToRouteMatch(RouteMatch $routeMatch) {
+      foreach ($this->getParameters() as $key => $value) {
+        $routeMatch->set($key, $value);
       }
       foreach ($this->getModifiers() as $modifier) {
-        foreach ($modifier->getStoredParams() as $param => $value) {
-          $routeMatch->set($param, $value);
+        foreach ($modifier->getParameters() as $key => $value) {
+          $routeMatch->set($key, $value);
         }
+      }
+      if ($urlTemplate = $this->getUrlTemplate()) {
+        foreach ($urlTemplate->getParameters() as $key => $value) {
+          $routeMatch->set($key, $value);
+        }
+      }
+      $parentRoute = $this->getParentRoute();
+      while (!empty($parentRoute)) {
+        $parentRoute->storeParametersToRouteMatch($routeMatch);
+        $parentRoute = $parentRoute->getParentRoute();
       }
       return $routeMatch;
     }
@@ -166,7 +166,7 @@
      */
     public function getUrl() {
       $urlBuilder = $this->createUrlBuilder();
-      $urlBuilder = $this->prepareUrlBuilder($urlBuilder);
+      $urlBuilder = $this->storeParametersToUrlBuilder($urlBuilder);
 
       return $urlBuilder;
     }
@@ -184,67 +184,34 @@
      * @param UrlBuilder $urlBuilder
      * @return UrlBuilder
      */
-    protected function prepareUrlBuilder(UrlBuilder $urlBuilder) {
-      //set parent route stored parameters to UrlBuilder
-      if (!empty($this->parentRoute)) {
-        $urlBuilder = $this->parentRoute->prepareUrlBuilder($urlBuilder);
+    protected function storeParametersToUrlBuilder(UrlBuilder $urlBuilder) {
+      foreach ($this->getDefaultParameters() as $key => $value) {
+        $urlBuilder->setParameter($key, $value);
       }
-      //set current route stored parameters to UrlBuilder
-      $urlBuilder = $this->setStoredParamsToUrlBuilder($urlBuilder);
-      //set modifiers stored parameters to UrlBuilder
-      foreach ($this->modifiers as $modifierItem) {
-        foreach ($modifierItem->getStoredParams() as $key => $value) {
-          $urlBuilder->setDefaultParameter($key, $value);
+      foreach ($this->getModifiers() as $modifier) {
+        foreach ($modifier->getDefaultParameters() as $key => $value) {
+          $urlBuilder->setParameter($key, $value);
         }
       }
-      return $urlBuilder;
-    }
-
-
-    /**
-     * @param UrlBuilder $urlBuilder
-     * @return UrlBuilder
-     */
-    protected function setStoredParamsToUrlBuilder(UrlBuilder $urlBuilder) {
-      foreach ($this->getStoredParams() as $key => $value) {
-        $urlBuilder->setDefaultParameter($key, $value);
+      if ($urlTemplate = $this->getUrlTemplate()) {
+        foreach ($urlTemplate->getDefaultParameters() as $key => $value) {
+          $urlBuilder->setParameter($key, $value);
+        }
+      }
+      $parentRoute = $this->getParentRoute();
+      while (!empty($parentRoute)) {
+        $parentRoute->storeParametersToUrlBuilder($urlBuilder);
+        $parentRoute = $parentRoute->getParentRoute();
       }
       return $urlBuilder;
     }
 
 
     /**
-     * @param RouteMatch $routeMatch
+     * @return UrlTemplate
      */
-    public function storeParamsFromMatch(RouteMatch $routeMatch) {
-      $this->storeParams($routeMatch->getParameters());
-    }
-
-
-    /**
-     * @param array $params
-     */
-    public function storeParams($params) {
-      foreach ($params as $param => $value) {
-        $this->storeParam($param, $value);
-      }
-    }
-
-
-    /**
-     * @param string $param
-     * @param string $value
-     */
-    public function storeParam($param, $value) {
-      $this->storedParams[$param] = $value;
-    }
-
-
-    /**
-     * @return array
-     */
-    public function getStoredParams() {
-      return $this->storedParams;
+    public function getUrlTemplate() {
+      return $this->urlTemplate;
     }
 
 
@@ -254,7 +221,6 @@
      */
     public function setUrlTemplate(UrlTemplate $template) {
       $this->urlTemplate = $template;
-      $this->urlTemplate->setRoute($this);
       return $this;
     }
 

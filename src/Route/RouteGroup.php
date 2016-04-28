@@ -5,6 +5,7 @@
 
 
   use ReRoute\RequestContext;
+  use ReRoute\RouteMatch;
 
   /**
    * @package ReRoute\AbstractRoute
@@ -29,7 +30,7 @@
 
 
     /**
-     * @return RouteInterface[]
+     * @return AbstractRoute[]
      */
     public function getRoutes() {
       return $this->routes;
@@ -43,27 +44,19 @@
       if (empty($this->getRoutes())) {
         throw new \Exception('Routes list can\'t be empty!');
       }
-
-      if (false == parent::doMatch($requestContext)) {
+      
+      if (false == $this->isMatched($requestContext)) {
         return false;
       }
 
       foreach ($this->getRoutes() as $route) {
         $routeMatch = $route->doMatch($requestContext);
-        if ($routeMatch !== false) {
+        if ($routeMatch instanceof RouteMatch) {
+          $routeMatch = $this->storeParametersToRouteMatch($routeMatch);
           return $routeMatch;
         }
       }
       return false;
     }
-
-
-    /**
-     * @inheritdoc
-     */
-    protected function match(RequestContext $requestContext) {
-      return $this->successfulMatch();
-    }
-
 
   }

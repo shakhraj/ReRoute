@@ -31,9 +31,10 @@
           ->setPrefix($prefix);
         foreach ($tests as $url => $result) {
           $requestContext = Helper\RequestContextFactory::createFromUrl($url);
-          $matchResult = $modifier->doMatch($requestContext);
+
+          $matchResult = $modifier->isMatched($requestContext);
           if ($result[0]) {
-            $this->assertInstanceOf(\ReRoute\RouteMatch::class, $matchResult);
+            $this->assertTrue($matchResult);
             $this->assertEquals($result[1], $requestContext->getPath());
           } else {
             $this->assertFalse($matchResult);

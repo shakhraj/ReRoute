@@ -36,10 +36,10 @@
     /**
      * @inheritdoc
      */
-    public function doMatch(\ReRoute\RequestContext $requestContext) {
+    public function isMatched(\ReRoute\RequestContext $requestContext) {
       $prefix = $this->getPrefix();
       if (empty($prefix)) {
-        return $this->successfulMatch();
+        return true;
       }
       if (strpos($requestContext->getPath(), $prefix) === 0) {
         $pathWithoutPrefix = (string) substr($requestContext->getPath(), strlen($prefix));
@@ -47,7 +47,7 @@
           $pathWithoutPrefix = '/' . $pathWithoutPrefix;
         }
         $requestContext->setPath($pathWithoutPrefix);
-        return $this->successfulMatch();
+        return true;
       }
       return false;
     }

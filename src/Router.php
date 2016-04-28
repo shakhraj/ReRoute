@@ -6,7 +6,6 @@
   use ReRoute\Route\FinalRoute;
   use ReRoute\Route\AbstractRoute;
   use ReRoute\Route\RouteGroup;
-  use ReRoute\Route\RouteInterface;
 
 
   /**
@@ -21,7 +20,7 @@
     protected $methodOverride = '';
 
     /**
-     * @var array
+     * @var AbstractRoute[]
      */
     protected $resultToRouteMapping = [];
 
@@ -52,9 +51,9 @@
 
 
     /**
-     * @param RouteInterface $route
+     * @param AbstractRoute $route
      */
-    private function addToRouteResultMapping(RouteInterface $route) {
+    private function addToRouteResultMapping(AbstractRoute $route) {
       if ($route instanceof FinalRoute) {
         $this->resultToRouteMapping[$route->getResult()] = $route;
         return;
@@ -72,12 +71,37 @@
     /**
      * @param string $routeResult
      * @return UrlBuilder
+     * @deprecated
+     * @see urlBuilder
      */
     public function getUrl($routeResult) {
+      return $this->urlBuilder($routeResult);
+    }
+
+
+    /**
+     * @param string $routeResult
+     * @return UrlBuilder
+     */
+    public function urlBuilder($routeResult) {
       if (empty($this->resultToRouteMapping[$routeResult])) {
         throw new \InvalidArgumentException('No route: ' . $routeResult);
       }
       return $this->resultToRouteMapping[$routeResult]->getUrl();
+    }
+
+
+    /**
+     * @param string $routeResult
+     * @param array $options
+     * @return string
+     */
+    public function generateUrl($routeResult, array $options = []) {
+      $urlBuilder = $this->urlBuilder($routeResult);
+      foreach ($options as $key => $value) {
+        $urlBuilder->setParameter($key, $value);
+      }
+      return $urlBuilder->assemble();
     }
 
 

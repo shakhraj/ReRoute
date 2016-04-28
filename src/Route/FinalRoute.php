@@ -21,7 +21,6 @@
 
 
     /**
-     * FinalRoute constructor.
      * @param string $routeResult
      * @param null|UrlTemplate $urlTemplate
      */
@@ -36,20 +35,25 @@
 
 
     /**
-     * @inheritdoc
-     */
-    public function successfulMatch(RouteMatch $routeMatch = null) {
-      $successMatch = parent::successfulMatch($routeMatch);
-      $successMatch->setRouteResult($this->getResult());
-      return $successMatch;
-    }
-
-
-    /**
      * @return mixed
      */
     public function getResult() {
       return $this->result;
+    }
+
+
+    /**
+     * @param \ReRoute\RequestContext $requestContext
+     *
+     * @return RouteMatch|bool
+     */
+    public function doMatch(\ReRoute\RequestContext $requestContext) {
+      if (false == $this->isMatched($requestContext)) {
+        return false;
+      }
+      $routeMatch = new RouteMatch($this->getResult());
+      $this->storeParametersToRouteMatch($routeMatch);
+      return $routeMatch;
     }
 
 
@@ -60,6 +64,4 @@
       parent::build($url, $urlBuilder);
       $this->buildModifiers($url, $urlBuilder);
     }
-
-
   }

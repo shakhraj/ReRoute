@@ -2,52 +2,32 @@
 
   namespace ReRoute\Modifier;
 
-  use ReRoute\Route\RouteInterface;
-  use ReRoute\RouteMatch;
+  use ReRoute\ParameterStore;
+  use ReRoute\RequestContext;
+  use ReRoute\Url;
+  use ReRoute\UrlBuilder;
 
   /**
-   *
    * @package ReRoute
+   *
    */
-  abstract class AbstractRouteModifier implements RouteInterface {
+  abstract class AbstractRouteModifier {
+
+    use ParameterStore;
 
 
     /**
-     * @var array
+     * @param RequestContext $requestContext
+     * @return bool
      */
-    protected $storedParams = [];
+    public abstract function isMatched(RequestContext $requestContext);
 
 
     /**
-     * @param $param
-     * @param $value
+     * @param Url $url
+     * @param UrlBuilder $urlBuilder
+     * @return mixed
      */
-    public function storeParam($param, $value) {
-      $this->storedParams[$param] = $value;
-    }
-
-
-    /**
-     * @return array
-     */
-    public function getStoredParams() {
-      return $this->storedParams;
-    }
-
-
-    /**
-     * @param RouteMatch $routeMatch
-     *
-     * @return RouteMatch
-     */
-    public function successfulMatch(RouteMatch $routeMatch = null) {
-      if (is_null($routeMatch)) {
-        $routeMatch = new RouteMatch();
-      }
-      foreach ($this->storedParams as $param => $value) {
-        $routeMatch->set($param, $value);
-      }
-      return $routeMatch;
-    }
+    public abstract function build(Url $url, UrlBuilder $urlBuilder);
 
   }

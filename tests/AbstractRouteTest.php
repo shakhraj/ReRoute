@@ -7,7 +7,6 @@
   use ReRoute\Route\AbstractRoute;
   use ReRoute\Route\FinalRoute;
   use ReRoute\Route\RouteGroup;
-  use ReRoute\RouteMatch;
   use ReRoute\Template\UrlTemplate;
   use ReRoute\Tests\Fixtures\MobileHostRouteModifier;
   use ReRoute\Tests\Helper\RequestContextFactory;
@@ -16,21 +15,28 @@
   /**
    * @package ReRoute\Tests
    */
-  class AbstractRouteTest extends \PHPUnit_Framework_TestCase {
+  class TestRoute extends AbstractRoute {
 
     /**
-     * @return AbstractRoute
+     * @inheritdoc
      */
-    protected function createAbstractRouteMock() {
-      return $this->getMockForAbstractClass(AbstractRoute::class);
+    public function doMatch(\ReRoute\RequestContext $requestContext) {
+      return $this->isMatched($requestContext);
     }
+  }
+
+
+  /**
+   * @package ReRoute\Tests
+   */
+  class AbstractRouteTest extends \PHPUnit_Framework_TestCase {
 
 
     /**
      *
      */
     public function testGetUrl() {
-      $route = $this->createAbstractRouteMock();
+      $route = new TestRoute();
       $this->assertInstanceOf(UrlBuilder::class, $route->getUrl());
     }
 
@@ -39,7 +45,7 @@
      *
      */
     public function testSetParentRoute() {
-      $route = $this->createAbstractRouteMock();
+      $route = new TestRoute();
 
       $route->setParentRoute(new RouteGroup());
       $this->assertInstanceOf(RouteGroup::class, $route->getParentRoute());
@@ -53,17 +59,17 @@
      *
      */
     public function testMatchUrlTemplate() {
-      $route = $this->createAbstractRouteMock();
+      $route = new TestRoute();
 
       $routeMatch = $route->doMatch(RequestContextFactory::createFromUrl('http://example.com/'));
-      $this->assertInstanceOf(RouteMatch::class, $routeMatch);
+      $this->assertTrue($routeMatch);
 
       $route->setUrlTemplate(new UrlTemplate(['host' => 'example.ua']));
       $this->assertFalse($route->doMatch(RequestContextFactory::createFromUrl('http://example.com/')));
 
       $route->setUrlTemplate(new UrlTemplate(['host' => 'example.com']));
       $routeMatch = $route->doMatch(RequestContextFactory::createFromUrl('http://example.com/'));
-      $this->assertInstanceOf(RouteMatch::class, $routeMatch);
+      $this->assertTrue($routeMatch);
     }
 
 
@@ -71,20 +77,45 @@
      *
      */
     public function testModifiers() {
-      $route = $this->createAbstractRouteMock();
+      $route = new TestRoute();
 
       $this->assertEquals(0, count($route->getModifiers()));
 
       $routeMatch = $route->doMatch(RequestContextFactory::createFromUrl('http://example.com/'));
-      $this->assertInstanceOf(RouteMatch::class, $routeMatch);
-      $this->assertEmpty($routeMatch->get('isMobile'));
+      $this->assertTrue($routeMatch);
 
       $route->addModifier(new MobileHostRouteModifier());
       $this->assertEquals(1, count($route->getModifiers()));
 
       $routeMatch = $route->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/'));
-      $this->assertInstanceOf(RouteMatch::class, $routeMatch);
-      $this->assertTrue($routeMatch->get('isMobile'));
+      $this->assertTrue($routeMatch);
+    }
+
+
+    /**
+     *
+     */
+    public function testComplexMatching() {
+      $route = new TestRoute();
+
+      $this->assertTrue(
+        $route->doMatch(RequestContextFactory::createFromUrl('http://example.com/'))
+      );
+
+      $route->addModifier(new MobileHostRouteModifier());
+      $this->assertTrue(
+        $route->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/'))
+      );
+
+      $route->setUrlTemplate(new UrlTemplate(['host' => 'example.net']));
+      $this->assertFalse(
+        $route->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/'))
+      );
+
+      $route->setUrlTemplate(new UrlTemplate(['host' => 'example.com']));
+      $this->assertTrue(
+        $route->doMatch(RequestContextFactory::createFromUrl('http://m.example.com/'))
+      );
     }
 
 

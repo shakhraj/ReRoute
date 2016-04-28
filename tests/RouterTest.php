@@ -125,7 +125,7 @@
 
       $this->assertEquals('http://example.com/', $router->getUrl('homepageResult')->assemble());
       $this->assertEquals('http://example.com/items/', $router->getUrl('itemListResult')->assemble());
-      $this->assertEquals('http://example.com/items/1/', $router->getUrl('singleItemResult')->set('itemId', 1)->assemble());
+      $this->assertEquals('http://example.com/items/1/', $router->getUrl('singleItemResult')->setParameter('itemId', 1)->assemble());
     }
 
   }

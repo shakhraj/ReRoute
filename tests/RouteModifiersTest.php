@@ -55,16 +55,16 @@
      */
     public function testBuildWithModifiers() {
       $router = $this->getRouter();
-
+    
       $router->doMatch(RequestContextFactory::createFromUrl('http://example.com/'));
       $urlBuilder = $router->getUrl('siteIndexResult');
-
+    
       $this->assertEquals('http://example.com/', $urlBuilder->assemble());
-
-      $urlBuilder->set('isMobile', true);
+    
+      $urlBuilder->setParameter('isMobile', true);
       $this->assertEquals('http://m.example.com/', $urlBuilder->assemble());
-
-      $urlBuilder->set('lang', 'ua');
+    
+      $urlBuilder->setParameter('lang', 'ua');
       $this->assertEquals('http://m.example.com/ua/', $urlBuilder->assemble());
     }
 

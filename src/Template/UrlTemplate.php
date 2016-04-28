@@ -2,16 +2,17 @@
 
   namespace ReRoute\Template;
 
+  use ReRoute\ParameterStore;
   use ReRoute\RequestContext;
-  use ReRoute\Route\AbstractRoute;
-  use ReRoute\Route\RouteInterface;
   use ReRoute\Url;
   use ReRoute\UrlBuilder;
 
   /**
    * @package ReRoute\Template
    */
-  class UrlTemplate implements RouteInterface {
+  class UrlTemplate {
+
+    use ParameterStore;
 
     CONST PARAMETER_SCHEME = 'scheme';
 
@@ -45,11 +46,6 @@
      */
     protected $method = null;
 
-    /**
-     * @var AbstractRoute
-     */
-    protected $route;
-
 
     /**
      * UrlTemplate constructor.
@@ -81,30 +77,13 @@
 
 
     /**
-     * @return AbstractRoute
+     * @param RequestContext $requestContext
+     * @return bool
      */
-    public function getRoute() {
-      return $this->route;
-    }
-
-
-    /**
-     * @param AbstractRoute $route
-     * @return $this
-     */
-    public function setRoute(AbstractRoute $route) {
-      $this->route = $route;
-      return $this;
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function doMatch(RequestContext $requestContext) {
+    public function isMatched(RequestContext $requestContext) {
       if (!empty($this->pathTemplate)) {
         if ($this->pathTemplate->match($requestContext->getPath(), $matchedParams)) {
-          $this->getRoute()->storeParams($matchedParams);
+          $this->storeDefaultParameters($matchedParams);
         } else {
           return false;
         }
@@ -112,7 +91,7 @@
 
       if (!empty($this->hostTemplate)) {
         if ($this->hostTemplate->match($requestContext->getHost(), $matchedParams)) {
-          $this->getRoute()->storeParams($matchedParams);
+          $this->storeParameters($matchedParams);
         } else {
           return false;
         }
@@ -135,7 +114,8 @@
 
 
     /**
-     * @inheritdoc
+     * @param Url $url
+     * @param UrlBuilder $urlBuilder
      */
     public function build(Url $url, UrlBuilder $urlBuilder) {
       if (!empty($this->hostTemplate)) {
@@ -159,9 +139,8 @@
      */
     protected function templateBuild(Template $template, UrlBuilder $urlBuilder) {
 
-      $parameters = $urlBuilder->getParameters();
 
-      $path = $template->build($parameters, $usedParameters);
+      $path = $template->build($urlBuilder->getAllParameters(), $usedParameters);
       foreach ($usedParameters as $name) {
         $urlBuilder->useParameter($name);
       }
